@@ -1,0 +1,77 @@
+name: Build application
+
+# Builds the shipped application from source on Debian and Windows, so a change
+# that breaks either platform's build fails here. Owned by this repository's
+# cross-platform build entry points: build.sh, build.bat, and packaging/.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'build.sh'
+      - 'build.bat'
+      - 'packaging/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/build-app.yml'
+  pull_request:
+    paths:
+      - 'build.sh'
+      - 'build.bat'
+      - 'packaging/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/build-app.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-app-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-debian:
+    name: Debian (bookworm)
+    runs-on: ubuntu-latest
+    container: debian:bookworm
+    steps:
+      - name: Install base packages
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends ca-certificates curl xz-utils git build-essential python3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Build and pack
+        run: ./build.sh --pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-harness-debian
+          path: dist/**
+          if-no-files-found: error
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Build
+        shell: cmd
+        run: build.bat --pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-harness-windows
+          path: dist/**
+          if-no-files-found: error
