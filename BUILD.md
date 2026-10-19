@@ -35,6 +35,18 @@ Run `build.bat --desktop` on a Windows x64 host. Packaging needs network access 
 
 Upstream also supports a machine-preset mode for CI-style runs: `DSH_PACKAGING_CONFIG_DIR` names an absolute directory holding `presets/<test|production>.env` and `secrets/windows-signing.env`, and `DSH_PACKAGING_PRESET` selects the preset. A missing preset file fails instead of falling back to `.env.windows`; unsigned and preparation-only runs never read the signing file. `build.bat` uses the dotenv path and needs no preset.
 
+### Windows version and signature
+
+The Desktop application runs on Windows 10 and newer. It ships Electron 44 (Chromium 140), while Electron 22 was the last major that supported Windows 7, 8, and 8.1 ([deprecation notice](https://www.electronjs.org/blog/windows-7-to-8-1-deprecation-notice)); the bundled runtime also needs Node 22 or newer, which does not run on those systems. A Windows 7 build would require an Electron ≤22 fork of the whole application, so these scripts do not produce one.
+
+The installer is built unsigned because Windows trusts a signature only from a certificate a public CA issued after an identity check; upstream's release pipeline holds that as an EV token, and a local checkout cannot create it. `packaging/sign-windows-selfsigned.ps1` instead generates a self-signed code-signing certificate, signs the installer, and exports the public certificate:
+
+```
+powershell -ExecutionPolicy Bypass -File packaging\sign-windows-selfsigned.ps1 -File dist\win\deepseek-harness-<version>-win-x64.exe
+```
+
+That signature covers the file's bytes, but Windows reports "Unknown publisher" until the exported `.cer` is installed under Trusted Root Certification Authorities on the machine that should accept it. Signing after packaging also invalidates the electron-builder blockmap, so regenerate it before an artifact feeds an update channel.
+
 ## Linux and Debian
 
 Run the shell entry point from the repository root:
