@@ -94,6 +94,10 @@ if [[ "$SKIP_INSTALL" -eq 0 ]]; then
 fi
 
 if [[ "$DO_PACK" -eq 1 ]]; then
+  # The official client profile embeds the source commit and the product version,
+  # which are also what mark the artifacts as this fork's edition.
+  export DSH_CLIENT_COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+  export DSH_CLIENT_VERSION="$VERSION"
   echo ">> pnpm run build:official"
   "${PNPM[@]}" run build:official
 else

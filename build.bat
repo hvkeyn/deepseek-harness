@@ -76,6 +76,12 @@ if errorlevel 1 exit /b 1
 goto after_build
 
 :official_build
+rem The official client profile embeds the source commit and the product version,
+rem which are also what mark the artifacts as this fork's edition.
+set "DSH_CLIENT_COMMIT_HASH="
+for /f "delims=" %%h in ('git rev-parse --short HEAD 2^>nul') do set "DSH_CLIENT_COMMIT_HASH=%%h"
+if not defined DSH_CLIENT_COMMIT_HASH set "DSH_CLIENT_COMMIT_HASH=unknown"
+set "DSH_CLIENT_VERSION=!VERSION!"
 echo ^>^> %PNPM% run build:official
 call !PNPM! run build:official
 if errorlevel 1 exit /b 1

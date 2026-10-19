@@ -4,6 +4,8 @@ This repository is a checkout of [deepseek-harness](https://github.com/deepseek-
 
 The canonical upstream documentation remains authoritative: see `docs/development.md` for the contributor setup, [`apps/desktop/packaging/README.md`](apps/desktop/packaging/README.md) for Desktop packaging, [`apps/desktop/windows-signing/README.md`](apps/desktop/windows-signing/README.md) for signing, and [`apps/desktop/publishing/README.md`](apps/desktop/publishing/README.md) for publication.
 
+The official client build marks the sidebar name with an `HVKeyn Edition` badge. `--pack` and the Desktop packaging build that profile, and `--pack` supplies the source commit and product version it embeds. A plain `pnpm run build` remains a local build: it keeps the shell's local-build label and shows no badge.
+
 ## Prerequisites
 
 | Need | Linux | Windows |
