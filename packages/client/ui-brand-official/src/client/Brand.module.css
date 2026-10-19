@@ -1,0 +1,25 @@
+/* Edition marker beside the official name artwork, on the badge row's baseline. */
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Same inverted pill as the sidebar's build-version badge, sized for a word here
+   rather than a version number: the wordmark's own badge sets the visual weight. */
+.edition {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: var(--dsw-alias-label-primary);
+  color: var(--dsw-alias-label-primary-inverted);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
