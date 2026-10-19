@@ -127,6 +127,18 @@ pnpm run clean
 
 `pnpm run clean` is required, not optional: a package that upstream deleted keeps its ignored `lib/` output in the checkout, and a bundle step that still resolves that residue fails with a missing-export error against the new source. Resolve the conflicts `git apply --3way` reports, rebuild, then publish the new state as the next single commit (`git checkout --orphan`, `git add -A`, `git commit`).
 
+## Harness bundles (fork-local)
+
+A harness bundle is one harness stored as a directory an editor can rewrite as a unit: `harness.json`, `system-prompt.md`, `skills/<name>/SKILL.md`, `subagents/<name>.md`, `scripts/<name>.<ts|mjs|cjs|js|py|sh>`, and an optional `cordis.patch.yml`. The surface and its checks port the editable-harness idea of [Harness²](https://github.com/google-research/harness2) (Apache-2.0); no code is copied, and nothing here is wired into a shipped profile yet.
+
+```
+pnpm run harness:bundle validate path/to/bundle
+pnpm run harness:bundle diff path/to/old path/to/new
+pnpm run harness:bundle summary path/to/bundle
+```
+
+Validation rejects a bundle that escapes its directory, carries a credential-shaped file or `node_modules`, declares an off-surface component, or exceeds the per-file and total limits. Every problem is reported at once, with the path that raised it, so a retry loop can feed the message back verbatim. `diff` compares two bundles by content and `summary` reports the component census plus the always-on characters — the text every request pays for.
+
 ## Continuous integration
 
 `.github/workflows/build-app.yml` builds the application on a `debian:bookworm` container and on `windows-latest` and uploads the resulting `dist/` trees, so a change that breaks either platform's build is caught before merge. Both jobs pin the same Node 22 and the `packageManager` pnpm version as the local scripts.
