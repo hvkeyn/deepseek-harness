@@ -78,9 +78,10 @@ goto after_build
 :official_build
 rem The official client profile embeds the source commit and the product version,
 rem which are also what mark the artifacts as this fork's edition.
-set "DSH_CLIENT_COMMIT_HASH="
-for /f "delims=" %%h in ('git rev-parse --short HEAD 2^>nul') do set "DSH_CLIENT_COMMIT_HASH=%%h"
-if not defined DSH_CLIENT_COMMIT_HASH set "DSH_CLIENT_COMMIT_HASH=unknown"
+if not defined DSH_CLIENT_COMMIT_HASH (
+  for /f "delims=" %%h in ('git rev-parse --short HEAD 2^>nul') do set "DSH_CLIENT_COMMIT_HASH=%%h"
+)
+if not defined DSH_CLIENT_COMMIT_HASH goto missing_commit
 set "DSH_CLIENT_VERSION=!VERSION!"
 echo ^>^> %PNPM% run build:official
 call !PNPM! run build:official
@@ -126,6 +127,11 @@ exit /b 1
 
 :no_pnpm
 echo build.bat: pnpm is required. Run "corepack enable" with Node.js 22 or newer installed. 1>&2
+exit /b 1
+
+:missing_commit
+echo build.bat: --pack needs a Git checkout; the official client profile embeds the source commit. 1>&2
+echo           Run it from the repository, or set DSH_CLIENT_COMMIT_HASH to the packed commit. 1>&2
 exit /b 1
 
 :missing_desktop_env

@@ -96,7 +96,12 @@ fi
 if [[ "$DO_PACK" -eq 1 ]]; then
   # The official client profile embeds the source commit and the product version,
   # which are also what mark the artifacts as this fork's edition.
-  export DSH_CLIENT_COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+  if ! PACK_COMMIT="$(git rev-parse --short HEAD 2>/dev/null)"; then
+    echo "build.sh: --pack needs a Git checkout; the official client profile embeds the source commit." >&2
+    echo "          Run it from the repository, or export DSH_CLIENT_COMMIT_HASH to the packed commit." >&2
+    exit 1
+  fi
+  export DSH_CLIENT_COMMIT_HASH="${DSH_CLIENT_COMMIT_HASH:-$PACK_COMMIT}"
   export DSH_CLIENT_VERSION="$VERSION"
   echo ">> pnpm run build:official"
   "${PNPM[@]}" run build:official
