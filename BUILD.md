@@ -47,6 +47,20 @@ powershell -ExecutionPolicy Bypass -File packaging\sign-windows-selfsigned.ps1 -
 
 That signature covers the file's bytes, but Windows reports "Unknown publisher" until the exported `.cer` is installed under Trusted Root Certification Authorities on the machine that should accept it. Signing after packaging also invalidates the electron-builder blockmap, so regenerate it before an artifact feeds an update channel.
 
+### Windows 7 clients
+
+A Windows 7 machine cannot run the Desktop application, but it can drive a harness that runs elsewhere: the Web UI is the whole product, and every tool, terminal, and file operation executes on the Host. Run the Host on a supported machine and open its address from the Windows 7 client:
+
+```
+dsh web --host 192.168.1.20 --port 7766 --public-url http://192.168.1.20:7766 --trusted-host 192.168.1.20:7766
+```
+
+`--host` takes one concrete address of a local interface (wildcards are rejected), and the command prints the URL carrying the session token; open it on the client. For a shared network, add `--tls-cert`/`--tls-key` and an `https://` `--public-url`.
+
+The browser must satisfy the client's ES2022 build target plus the ES2023/ES2024 built-ins the bundles call. `apps/web/src/compat.ts` installs the missing ones (`Promise.withResolvers`, `Array.prototype.toSorted` and `toReversed`, `URL.canParse`) before any client module evaluates, which leaves the final browsers that still run on Windows 7 usable: Chrome or Edge 109, and Firefox 115 ESR. Firefox ESR keeps receiving security fixes; Chrome 109 does not. Treat the client machine as untrusted and keep the Host on a network you control.
+
+Styling is the remaining gap, and it is cosmetic rather than structural: the built stylesheet uses `:has()` fifteen times and `color-mix()` ten times. Firefox 115 supports `color-mix()` but not `:has()`, and Chrome 109 supports `:has()` but not `color-mix()`, so conditional states or computed colors degrade. Closing that gap means replacing those selectors and color expressions with older equivalents, which this fork has not done yet.
+
 ## Linux and Debian
 
 Run the shell entry point from the repository root:
