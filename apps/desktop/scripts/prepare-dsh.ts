@@ -39,7 +39,11 @@ const APP_ROOT = resolve(import.meta.dirname, '..')
 const BUILD_PATHS = resolveDesktopTargetBuildPaths()
 const DSH_OUTPUT_ROOT = BUILD_PATHS.dsh
 const BUILD_ROOT = mkdtempSync(join(tmpdir(), 'dsh-desktop-runtime-'))
-const STORE_ROOT = join(BUILD_ROOT, 'store')
+// The installed tree stays disposable per run, but pnpm's content-addressed store and its registry
+// metadata cache only hold downloaded or fetched inputs: keeping them under the target's build root
+// lets a repeat build resolve and link the pinned package set from disk instead of refetching it.
+const STORE_ROOT = join(BUILD_PATHS.root, 'pnpm-store')
+const PNPM_CACHE_ROOT = join(BUILD_PATHS.root, 'pnpm-cache')
 const RUNTIME_ROOT = BUILD_PATHS.runtime
 const PNPM_BUILD_STATE = BUILD_PATHS.dshPnpm
 const PACKAGE_SET_ROOT = BUILD_PATHS.packageSet
@@ -99,7 +103,7 @@ function runPnpm(args: readonly string[]): Promise<void> {
         NPM_CONFIG_USERCONFIG: userConfig,
         ...desktopNodeEnvironment(NODE, join(RUNTIME_ROOT, 'bin'), {}),
         PATH: `${join(RUNTIME_ROOT, 'bin')}${delimiter}${process.env.PATH ?? ''}`,
-        XDG_CACHE_HOME: join(PNPM_BUILD_STATE, 'cache'),
+        XDG_CACHE_HOME: PNPM_CACHE_ROOT,
         XDG_CONFIG_HOME: config,
         XDG_STATE_HOME: join(PNPM_BUILD_STATE, 'state'),
       },
@@ -119,6 +123,7 @@ async function main(): Promise<void> {
       rmSync(DSH_OUTPUT_ROOT, { recursive: true, force: true })
       rmSync(PNPM_BUILD_STATE, { recursive: true, force: true })
       mkdirSync(STORE_ROOT, { recursive: true })
+      mkdirSync(PNPM_CACHE_ROOT, { recursive: true })
     })
     const release = desktopRelease()
     const patches = await packagingStep(process.env.DSH_DESKTOP_PACKAGING_RUN_DIR, 'runtime:stage-packages', async () => {

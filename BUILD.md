@@ -105,6 +105,8 @@ For iteration, `pnpm run build:artifacts` skips the aggregate checks, a packagin
 
 Two more levers are built in. `build.sh --desktop` and `build.bat --desktop` alone skip the publishable tarball set, so an installer-only rebuild does not pay for it. The Desktop runtime installs its pinned package set with `--prefer-offline`, and the Debian CI job caches the pnpm store, so a repeat build resolves from disk instead of re-downloading hundreds of packages; a cold runtime install was measured at 452 s against 113 s warm.
 
+The runtime preparation keeps pnpm's store and registry-metadata cache under the target's build root (`apps/desktop/.desktop-build/targets/<target>/pnpm-store` and `pnpm-cache`) instead of a temporary directory that each run discarded. The installed tree stays disposable, so only fetched inputs are reused: `pnpm run clean` removes both along with the rest of `.desktop-build`. Measured on the same machine, `prepare:dsh` went from 499 s on an empty cache to 282 s on a repeat run, with `runtime:lockfile` dropping from 234 s to 95 s and `runtime:install` from 94 s to 22 s.
+
 The descriptor that seals the runtime is hashed concurrently since this fork added `writeDesktopRuntimeAsync` for the production path, which cut that stage from about 140 s to the cost of eight parallel readers.
 
 ## Universal Debian build (old glibc)
