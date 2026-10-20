@@ -53,6 +53,14 @@ jobs:
           node-version: '22'
       - name: Enable pnpm
         run: corepack enable
+      # The container starts empty on every run; the store makes `pnpm install --frozen-lockfile`
+      # resolve from disk instead of the registry.
+      - name: Cache the pnpm store
+        uses: actions/cache@v4
+        with:
+          path: /root/.local/share/pnpm/store
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
       - name: Build and pack
         run: ./build.sh --pack
       - uses: actions/upload-artifact@v4

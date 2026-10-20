@@ -103,6 +103,10 @@ The release pack is the longest single step: it turns every workspace package in
 
 For iteration, `pnpm run build:artifacts` skips the aggregate checks, a packaging run records every stage under `apps/desktop/.desktop-build/packaging-runs/`, and `pnpm run package:desktop:win:x64:dir` stops after the unpacked application instead of building the installer.
 
+Two more levers are built in. `build.sh --desktop` and `build.bat --desktop` alone skip the publishable tarball set, so an installer-only rebuild does not pay for it. The Desktop runtime installs its pinned package set with `--prefer-offline`, and the Debian CI job caches the pnpm store, so a repeat build resolves from disk instead of re-downloading hundreds of packages; a cold runtime install was measured at 452 s against 113 s warm.
+
+The descriptor that seals the runtime is hashed concurrently since this fork added `writeDesktopRuntimeAsync` for the production path, which cut that stage from about 140 s to the cost of eight parallel readers.
+
 ## Universal Debian build (old glibc)
 
 A build produced on a current distribution links against that distribution's glibc and may not start on older Debian releases. To target a wide range of systems, build inside an old Debian image:
