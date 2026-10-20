@@ -28,12 +28,30 @@
   gap: 16px;
 }
 
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
 .wordmark {
   font-size: 16px;
   line-height: 24px;
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--dsw-alias-label-primary, var(--dsh-boot-label-primary));
+}
+
+/* The edition sits under the wordmark as a caption, so the boot page keeps one
+   visual centre and the marker reads at any window width. */
+.edition {
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-tertiary, var(--dsh-boot-label-tertiary));
 }
 
 .hint {
