@@ -97,6 +97,12 @@ Linux packages `asar` disabled so the runtime is a plain directory (`resources/a
 
 `apps/desktop/.env.linux` owns release settings for the target (never the shell); `DSH_DESKTOP_APP_ID` is required and the npm registry may be overridden. Linux carries no mandatory-update policy, so no update origin is configured and the packaged shell does not restrict its platform at startup. Packaging writes no release completion record, `--build-version auto` is rejected, and the upload commands cannot publish a Linux artifact.
 
+## Build time
+
+The release pack is the longest single step: it turns every workspace package into a tarball. `build.sh` and `build.bat` now pass `--concurrency 4` (override with `DSH_PACK_CONCURRENCY`), and the Desktop packaging packs the runtime it bundles concurrently as well (`DSH_DESKTOP_WINDOWS_PACK_CONCURRENCY`, default 4; macOS keeps `DSH_DESKTOP_MACOS_PACK_CONCURRENCY`). On the workstation this fork was built on, the 343-package pack dropped from 683 s to 91 s with byte-identical tarball contents, and the publish-order file keeps the family order, so only wall-clock time changes.
+
+For iteration, `pnpm run build:artifacts` skips the aggregate checks, a packaging run records every stage under `apps/desktop/.desktop-build/packaging-runs/`, and `pnpm run package:desktop:win:x64:dir` stops after the unpacked application instead of building the installer.
+
 ## Universal Debian build (old glibc)
 
 A build produced on a current distribution links against that distribution's glibc and may not start on older Debian releases. To target a wide range of systems, build inside an old Debian image:

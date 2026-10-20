@@ -116,9 +116,11 @@ fi
 # --- packaging ---------------------------------------------------------------
 
 if [[ "$DO_PACK" -eq 1 ]]; then
-  echo ">> pnpm run release:pack --family dsh"
+  # The pack fans out over the workspace: the publish-order file keeps the family order.
+  PACK_CONCURRENCY="${DSH_PACK_CONCURRENCY:-4}"
+  echo ">> pnpm run release:pack --family dsh --concurrency ${PACK_CONCURRENCY}"
   mkdir -p "dist/packed"
-  "${PNPM[@]}" run release:pack --family dsh --out "dist/packed"
+  "${PNPM[@]}" run release:pack --family dsh --out "dist/packed" --concurrency "${PACK_CONCURRENCY}"
 fi
 
 if [[ "$DO_BUNDLE" -eq 1 ]]; then

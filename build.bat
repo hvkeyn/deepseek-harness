@@ -89,9 +89,11 @@ if errorlevel 1 exit /b 1
 
 :after_build
 if not "%DO_PACK%"=="1" goto after_pack
-echo ^>^> %PNPM% run release:pack --family dsh
+rem The pack fans out over the workspace: the publish-order file keeps the family order.
+if not defined DSH_PACK_CONCURRENCY set "DSH_PACK_CONCURRENCY=4"
+echo ^>^> %PNPM% run release:pack --family dsh --concurrency !DSH_PACK_CONCURRENCY!
 if not exist "dist\packed" mkdir "dist\packed"
-call !PNPM! run release:pack --family dsh --out "dist\packed"
+call !PNPM! run release:pack --family dsh --out "dist\packed" --concurrency !DSH_PACK_CONCURRENCY!
 if errorlevel 1 exit /b 1
 
 :after_pack
