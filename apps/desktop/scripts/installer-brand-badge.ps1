@@ -13,14 +13,17 @@ function Add-InstallerEditionBadge {
         [Parameter(Mandatory = $true)][Drawing.Graphics]$Graphics,
         [Parameter(Mandatory = $true)][Drawing.Bitmap]$Bitmap,
         [switch]$Dark,
+        [ValidateSet('Wordmark', 'Below')][string]$Placement = 'Wordmark',
         [string]$Text = 'HVKeyn Edition'
     )
 
     $scale = $Bitmap.Width / 600.0
+    if ($Placement -eq 'Below') { $scale = $Bitmap.Width / 164.0 }
     $bandTop = [int]($Bitmap.Height * 0.72)
     $bandBottom = [int]($Bitmap.Height * 0.95)
+    $gap = [int](12 * $scale)
 
-    # Find the wordmark's right edge inside the lower band; the whale mark sits above it.
+    # Find the artwork's right edge inside the lower band; the whale mark sits above it.
     $right = 0
     for ($y = $bandTop; $y -lt $bandBottom; $y++) {
         for ($x = $Bitmap.Width - 1; $x -gt $right; $x--) {
@@ -30,7 +33,22 @@ function Add-InstallerEditionBadge {
             if ($isInk) { $right = $x; break }
         }
     }
-    if ($right -eq 0) { return }
+    if ($Placement -eq 'Below') {
+        # The narrow uninstaller panel carries its artwork as one card: centre the marker under it.
+        $bottom = 0
+        for ($y = $Bitmap.Height - 1; $y -ge $bandTop; $y--) {
+            for ($x = 0; $x -lt $Bitmap.Width; $x++) {
+                $pixel = $Bitmap.GetPixel($x, $y)
+                $sum = $pixel.R + $pixel.G + $pixel.B
+                if ($sum -lt 700) { $bottom = $y; break }
+            }
+            if ($bottom -ne 0) { break }
+        }
+        if ($bottom -eq 0) { $bottom = [int]($Bitmap.Height * 0.6) }
+        $bandTop = $bottom + $gap
+        $bandBottom = $bandTop
+    }
+    elseif ($right -eq 0) { return }
 
     $gap = [int](12 * $scale)
     $pillHeight = [double](14 * $scale)
@@ -44,11 +62,17 @@ function Add-InstallerEditionBadge {
     try {
         $measured = $Graphics.MeasureString($Text, $font, [Drawing.PointF]::new(0, 0), $format)
         $pillWidth = [int]($measured.Width + 2 * $padding)
-        $x = [int]($right + $gap)
-        if (($x + $pillWidth) -ge $Bitmap.Width) {
-            $x = [Math]::Max(0, $Bitmap.Width - $pillWidth - [int](4 * $scale))
+        if ($Placement -eq 'Below') {
+            $x = [int](($Bitmap.Width - $pillWidth) / 2)
+            $y = [int]$bandTop
         }
-        $y = [int](($bandTop + $bandBottom) / 2 - $pillHeight / 2)
+        else {
+            $x = [int]($right + $gap)
+            if (($x + $pillWidth) -ge $Bitmap.Width) {
+                $x = [Math]::Max(0, $Bitmap.Width - $pillWidth - [int](4 * $scale))
+            }
+            $y = [int](($bandTop + $bandBottom) / 2 - $pillHeight / 2)
+        }
         $radius = [int](3 * $scale)
         $diameter = 2 * $radius
         $path = New-Object Drawing.Drawing2D.GraphicsPath

@@ -73,7 +73,10 @@ foreach ($asset in @('brand', 'brand-2x', 'brand-dark', 'brand-dark-2x', 'uninst
                 $background = if ($asset -like '*dark*') { [Drawing.Color]::FromArgb(21, 21, 23) } else { [Drawing.Color]::White }
                 $graphics.Clear($background)
                 $graphics.DrawImage($image, 0, 0, $image.Width, $image.Height)
-                if ($asset -ne 'uninstaller-sidebar') {
+                if ($asset -eq 'uninstaller-sidebar') {
+                    Add-InstallerEditionBadge -Graphics $graphics -Bitmap $bitmap -Placement Below
+                }
+                else {
                     Add-InstallerEditionBadge -Graphics $graphics -Bitmap $bitmap -Dark:($asset -like '*dark*')
                 }
             } finally { $graphics.Dispose() }
