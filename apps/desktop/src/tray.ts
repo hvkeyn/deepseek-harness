@@ -31,7 +31,7 @@ export class DesktopTray {
     const tray = this.tray
     if (tray === undefined) return
     const { messages } = this.options.locale()
-    tray.setToolTip(messages.aboutProduct)
+    tray.setToolTip(`${messages.aboutProduct} · ${messages.editionName}`)
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: messages.openApplication, click: () => { this.options.open() } },
       { type: 'separator' },

@@ -47,6 +47,16 @@ powershell -ExecutionPolicy Bypass -File packaging\sign-windows-selfsigned.ps1 -
 
 That signature covers the file's bytes, but Windows reports "Unknown publisher" until the exported `.cer` is installed under Trusted Root Certification Authorities on the machine that should accept it. Signing after packaging also invalidates the electron-builder blockmap, so regenerate it before an artifact feeds an update channel.
 
+### Updates from this fork's releases
+
+An unsigned build ships no update feed unless the deployment names one, because there is no signing identity to check a downloaded installer against. `DSH_DESKTOP_UPDATE_FEED_URL` supplies one: it takes an absolute HTTPS location, replaces the packaged feed URL, and is written into `resources/app-update.yml` together with the channel. This fork points it at its own releases:
+
+```
+DSH_DESKTOP_UPDATE_FEED_URL=https://github.com/hvkeyn/deepseek-harness/releases/latest/download/
+```
+
+A build made with that setting emits `nightly.yml` (the `nightly` channel is the only one an `-rc` version may use) and a `.exe.blockmap` beside the installer. Publish both with the installer itself: `nightly.yml` records the installer's size and SHA-512, so the yml and the executable must come from the same build. The installed application then reads `<feed>/nightly.yml`, compares versions, and downloads the next release when one appears; without the yml it reports that the application has no packaged update source.
+
 ### Windows 7 clients
 
 A Windows 7 machine cannot run the Desktop application, but it can drive a harness that runs elsewhere: the Web UI is the whole product, and every tool, terminal, and file operation executes on the Host. Run the Host on a supported machine and open its address from the Windows 7 client:
