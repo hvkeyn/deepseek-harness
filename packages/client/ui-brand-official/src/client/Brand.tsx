@@ -15,14 +15,17 @@ export function OfficialBrandMark({ size }: SidebarBrandMarkOwnerProps) {
 
 /**
  * Render the official name artwork with this deployment's edition marker.
- * @param props - Locale seat that supplies the edition label.
- * @returns the official name wordmark followed by the edition badge.
+ *
+ * The sidebar names the edition compactly so the lockup fits its narrowest width;
+ * the full edition name stays available as the marker's title.
+ * @param props - Locale seat that supplies the edition labels.
+ * @returns the official name wordmark followed by the compact edition marker.
  */
 export function OfficialBrandName({ t }: PropsLocale<'common'>) {
   return (
     <span className={css.name}>
       <BrandWordmark includeMark={false} />
-      <span className={css.edition}>{t('brand.hvkeynEdition')}</span>
+      <span className={css.edition} title={t('brand.hvkeynEdition')}>{t('brand.hvkeynEditionCompact')}</span>
     </span>
   )
 }

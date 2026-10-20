@@ -35,6 +35,7 @@ export const en = {
   'back': 'Back',
   'brand.localBuild': 'DSH Local Build',
   'brand.hvkeynEdition': 'HVKeyn Edition',
+  'brand.hvkeynEditionCompact': 'HVKeyn',
   'workspace.defaultName': 'Default workspace',
   'unknown': 'Unknown',
   'none': 'None',

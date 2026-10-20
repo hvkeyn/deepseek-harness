@@ -2,24 +2,26 @@
 .name {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  min-width: 0;
 }
 
-/* Same inverted pill as the sidebar's build-version badge, sized for a word here
-   rather than a version number: the wordmark's own badge sets the visual weight. */
+/* Same inverted pill as the wordmark's own badge, one step smaller: the sidebar
+   lockup has to survive its narrowest width, so the visible marker is the short
+   edition name and the full one lives in its title. */
 .edition {
   flex: none;
   display: inline-flex;
   align-items: center;
-  height: 14px;
+  height: 13px;
   padding: 0 4px;
   border-radius: 2px;
   background: var(--dsw-alias-label-primary);
   color: var(--dsw-alias-label-primary-inverted);
   font-family: inherit;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 500;
-  line-height: 14px;
-  letter-spacing: 0.01em;
+  line-height: 13px;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
