@@ -1,4 +1,4 @@
-/** Typed English and Chinese copy owned by the Electron shell. */
+/** Typed English, Chinese, and Russian copy owned by the Electron shell. */
 
 export const en = {
   cliCommandMenu: 'Manage dsh Command…',
@@ -351,17 +351,192 @@ export const zh = {
   mandatoryNotification: '返回应用确认安装并重启。',
 } as const satisfies DesktopMessages
 
+export const ru = {
+  cliCommandMenu: 'Управление командой dsh…',
+  cliCommandTitle: 'Управление командой dsh',
+  cliCommandLocation: 'Команда Desktop: {path}',
+  cliCommandSelected: 'Текущая команда dsh: {path}',
+  cliCommandTarget: 'Текущая цель ярлыка: {path}',
+  cliCommandShadowed: 'Другой dsh имеет приоритет. Удалите или измените порядок той установки, чтобы по умолчанию использовалась команда Desktop. Можно также запускать команду Desktop по полному пути.',
+  cliCommandSelectionUnknown: 'Не удалось проверить команду в оболочке. Псевдоним или другая установка dsh могут иметь приоритет.',
+  cliCommandInstalled: 'Команда Desktop установлена.',
+  cliCommandNotInstalled: 'Добавьте команду Desktop в терминал.',
+  cliCommandBroken: 'Команда Desktop требует восстановления.',
+  cliCommandInstall: 'Установить',
+  cliCommandRepair: 'Восстановить',
+  cliCommandRemove: 'Удалить',
+  cliCommandClose: 'Закрыть',
+  cliCommandSwitch: 'Продолжить с командой Desktop?',
+  cliCommandPreserve: 'Существующая команда будет сохранена. Другие установки и файлы запуска оболочки не изменятся.',
+  cliCommandContinue: 'Продолжить',
+  cliCommandInstallApp: 'Установите Desktop в папку «Программы», прежде чем управлять командой dsh.',
+  cliCommandUpdating: 'Устанавливается обновление. Управляйте командой после завершения установки.',
+  cliCommandNewTerminal: 'Откройте новый терминал и выполните dsh --version.',
+  cliCommandRemoved: 'Регистрация команды Desktop удалена.',
+  cliCommandPreviousRestored: 'Предыдущий ярлык восстановлен.',
+  cliCommandOtherKept: 'Другие установки команды оставлены без изменений.',
+  cliCommandBackupKept: 'Предыдущий ярлык сохранён: {path}',
+  cliCommandChanged: 'Команда или PATH изменились, пока диалог был открыт. Откройте «Управление командой dsh» снова, чтобы проверить текущее состояние.',
+  cliCommandOwnershipError: 'Регистрация команды или резервная копия изменились. Посторонняя команда не удалена.',
+  cliCommandFailed: 'Не удалось обновить команду. Проверьте, что приложение установлено, а папка назначения доступна для записи, и повторите.',
+  application: 'Приложение',
+  fileMenu: 'Файл',
+  closePage: 'Закрыть страницу или окно',
+  aboutMenu: 'О программе DeepSeek Harness',
+  aboutProduct: 'DeepSeek Harness',
+  editionName: 'HVKeyn Edition',
+  aboutVersion: 'Версия V{version}',
+  aboutBuild: 'Сборка {commit} · {platform} {arch}',
+  aboutChannel: 'Канал обновлений: {channel}',
+  hideApplication: 'Скрыть DeepSeek Harness',
+  hideOtherApplications: 'Скрыть остальные',
+  showAllApplications: 'Показать все',
+  quitApplication: 'Завершить DeepSeek Harness',
+  openApplication: 'Открыть DeepSeek Harness',
+  quit: 'Завершить',
+  cancel: 'Отмена',
+  quitTitle: 'Завершить DeepSeek Harness?',
+  quitActiveTasks: 'Выполняющиеся задачи будут прерваны.',
+  quitScheduledTasks: 'Запланированные задачи не запустятся, пока приложение закрыто.',
+  quitActiveAndScheduledTasks: 'Выполняющиеся задачи будут прерваны, а запланированные не запустятся, пока приложение закрыто.',
+  backgroundNoticeBody: 'Выполняющиеся задачи продолжатся. Окно можно снова открыть из системного трея.',
+  backgroundNoticeConfirm: 'Понятно',
+  edit: 'Правка',
+  menuBar: 'Меню приложения',
+  delete: 'Удалить',
+  undo: 'Отменить',
+  redo: 'Повторить',
+  cut: 'Вырезать',
+  copy: 'Копировать',
+  paste: 'Вставить',
+  selectAll: 'Выделить всё',
+  startupFailed: 'DeepSeek Harness недоступен',
+  fatalSummary: 'Приложение не смогло запуститься или неожиданно остановилось.',
+  startupAddressInUse: 'Уже запущен другой экземпляр DSH (например, dsh web или приложение Desktop). Они не могут работать одновременно. Завершите другой экземпляр DSH и перезапустите.',
+  diagnosticTruncated: '… Подробности ошибки сокращены.',
+  reportWrittenTo: 'Отчёт диагностики: {path}',
+  startupReinstallAdvice: 'Если файлы приложения отсутствуют или повреждены, закройте приложение и переустановите его. Ваши задачи хранятся отдельно.',
+  exitApplication: 'Выход',
+  restartApplication: 'Перезапустить',
+  recoveryOperationFailed: 'Не удалось выполнить восстановление',
+  disableThirdPartyPlugins: 'Отключить сторонние плагины, сохранить резервную копию профиля и перезапустить',
+  welcomeTitle: 'DeepSeek Harness',
+  welcomeBrand: 'DeepSeek Harness',
+  welcomeEdition: 'HVKeyn Edition',
+  welcomeTaglineBefore: 'Добро пожаловать в ',
+  welcomeTaglineBrand: 'DeepSeek Harness',
+  welcomeTaglineAfter: '',
+  welcomeDescription: 'Раскрывайте потенциал. Исследуйте интеллект.',
+  welcomeAuthStarting: 'Открываем вход…',
+  welcomeAuthWaiting: 'Браузер не открылся автоматически?',
+  welcomeAuthWaitingDescription: 'Скопируйте ссылку для входа и откройте её в браузере.',
+  welcomeAuthExchanging: 'Завершаем вход…',
+  welcomeAuthExpired: 'Время входа истекло',
+  welcomeAuthExpiredDescription: 'Войдите снова, чтобы продолжить',
+  welcomeAuthFailed: 'Не удалось завершить вход. Попробуйте ещё раз.',
+  welcomeAuthCopyLink: 'Скопировать ссылку для входа',
+  welcomeAuthCopied: 'Скопировано',
+  welcomeAuthCopyFailed: 'Не удалось скопировать. Попробуйте ещё раз.',
+  welcomeAuthCancel: 'Отмена',
+  welcomeAuthRetry: 'Войти снова',
+  welcomeSignIn: 'Войти',
+  welcomeApiKey: 'Добавить API-ключ',
+  welcomeKeyTitle: 'Добавьте API-ключ, чтобы начать',
+  welcomeKeyDescription: 'Настройте официальные модели DeepSeek, чтобы начать работу с Harness',
+  welcomeKeyPlaceholder: 'Введите API-ключ',
+  welcomeKeySave: 'Сохранить и продолжить',
+  welcomeKeyLater: 'Настроить позже',
+  welcomeKeyBack: 'Вернуться ко входу',
+  welcomeSessionExpired: 'Вы вышли из аккаунта, войдите снова.',
+  welcomeKeyBlank: 'Введите API-ключ.',
+  welcomeKeyInvalid: 'Введите сам API-ключ, без кавычек, пробелов и присваивания переменной окружения.',
+  welcomeKeyFailed: 'Не удалось сохранить API-ключ. Попробуйте ещё раз.',
+  welcomeContinueFailed: 'Не удалось открыть рабочую область. Попробуйте ещё раз.',
+  checkUpdatesMenu: 'Проверить обновления…',
+  reloadPageMenu: 'Обновить страницу',
+  restartAppHostMenu: 'Перезапустить приложение и хост',
+  updateCheckFailedTitle: 'Не удалось проверить обновления',
+  updateCheckFailed: 'Не удалось проверить обновления. Попробуйте позже.',
+  updateDownloadFailed: 'Не удалось скачать обновление. Попробуйте ещё раз.',
+  updateInstallFailed: 'Не удалось установить обновление. Попробуйте позже.',
+  updateCheckNetworkFailed: 'Не удалось проверить обновления. Проверьте соединение и повторите.',
+  updateDownloadNetworkFailed: 'Не удалось скачать обновление. Проверьте соединение и повторите.',
+  updateInstallNetworkFailed: 'Не удалось установить обновление. Проверьте соединение и повторите.',
+  unknownError: 'Неизвестная ошибка',
+  updateCheckTitle: 'Проверка обновлений',
+  updateCurrentDetail: 'Текущая версия: {version}',
+  updateEdition: 'Редакция: {edition}',
+  updateChannel: 'Канал обновлений: {channel}',
+  updateCurrent: 'У вас последняя версия!',
+  updateChecking: 'Проверяем обновления…',
+  updateDownload: 'Скачать обновление',
+  updateDownloadedTitle: 'Версия {version} готова к установке',
+  updateDownloadedDetail: 'Приложение закроется во время обновления и откроется автоматически после его завершения.',
+  updateDownloadedDetailWindows: 'Приложение временно закроется во время обновления и откроется автоматически после его завершения.\n\nОбновление может занять время. Пожалуйста, подождите и не запускайте приложение заново во время установки.',
+  updateClose: 'Закрыть',
+  updateAcknowledge: 'ОК',
+  updateLater: 'Обновить позже',
+  updateDownloading: 'Скачивание {percent}%…',
+  updateVerifying: 'Проверяем файлы обновления…',
+  updateInstalling: 'Готовимся к перезапуску…',
+  updateRetry: 'Повторить обновление',
+  updateActiveTasks: 'Задачи ещё выполняются',
+  updateActiveTasksDetail: 'Обновление остановит выполняющиеся задачи и перезапустит приложение. Продолжить?',
+  updateStopTasks: 'Остановить задачи и обновить',
+  updateTasksChanged: 'Запустились новые задачи. Подтвердите ещё раз, чтобы остановить их и обновиться.',
+  updateTasksUnavailable: 'Статус задач недоступен. Повторите обновление, когда рабочая область будет готова.',
+  updateStopFailed: 'Не удалось безопасно остановить задачи. Обновление не установлено. Попробуйте позже.',
+  updateTechnicalDetails: 'Показать технические подробности',
+  updateTitle: 'Обновление DeepSeek Harness',
+  updateAvailable: 'Доступна новая версия: {version}',
+  updateDetail: 'Когда скачивание завершится, можно установить обновление и перезапустить приложение.',
+  installAndRestart: 'Установить и перезапустить',
+  later: 'Позже',
+  updateFailedTitle: 'Не удалось обновить',
+  mandatoryTitle: 'Обновитесь, чтобы продолжить',
+  mandatoryDetail: 'Эта версия больше не поддерживается. Обновитесь, чтобы продолжить. Выполняющиеся задачи будут работать, пока вы не подтвердите установку и перезапуск.',
+  mandatoryUnavailable: 'Не удалось проверить требования к обновлению. Попробуйте позже.',
+  policyLoginTitle: 'Вход в тестовую среду',
+  policyLoginRequired: 'Войдите через Feishu, чтобы проверить требования к обновлению этой тестовой сборки. Вход не скачает и не установит обновление.',
+  policyLogin: 'Войти через Feishu',
+  policyLoginFailed: 'Вход через Feishu не завершён. Попробуйте ещё раз.',
+  policyLoginLoading: 'Загружаем страницу входа…',
+  mandatoryNoRelease: 'Совместимое обновление не найдено. Проверьте снова или обратитесь в поддержку.',
+  mandatoryRefresh: 'Проверить снова',
+  mandatoryPage: 'Скачать с официального сайта',
+  mandatoryCopy: 'Скопировать ссылку',
+  mandatoryPageFailed: 'Не удалось открыть страницу загрузки. Скопируйте ссылку и откройте её в браузере.',
+  mandatoryActionFailed: 'Действие не удалось. Попробуйте ещё раз. Приложением можно снова пользоваться после завершения обновления.',
+  mandatoryReady: 'Обновление готово',
+  mandatoryVersion: 'Новая версия: {version}',
+  mandatoryReadyDetail: 'Приложение закроется во время обновления и откроется автоматически после его завершения.',
+  mandatoryDeferred: 'Выполняющиеся задачи продолжатся. Завершите обновление, прежде чем снова пользоваться приложением.',
+  mandatoryContinue: 'Продолжить обновление',
+  mandatoryInspecting: 'Проверяем задачи…',
+  mandatoryStopping: 'Останавливаем задачи…',
+  mandatoryRestarting: 'Приложение скоро перезапустится. Подождите.',
+  mandatoryDownloadFailed: 'Не удалось скачать или подготовить файлы обновления. Повторите попытку.',
+  mandatoryInstallFailed: 'Обновление не установлено. Проверьте задачи снова и повторите.',
+  mandatoryOpenHelp: 'Страница не открылась?',
+  mandatoryReopen: 'Открыть страницу загрузки снова',
+  mandatoryCopied: 'Ссылка скопирована',
+  mandatoryCopyFailed: 'Не удалось скопировать ссылку. Выделите и скопируйте её ниже.',
+  mandatoryAddress: 'Ссылка для скачивания',
+  mandatoryNotification: 'Вернитесь в приложение, чтобы подтвердить установку и перезапуск.',
+} as const satisfies DesktopMessages
+
 /** Locale payload exposed to the Desktop-owned renderer. */
 export interface DesktopLocale {
-  readonly id: 'en' | 'zh-CN'
+  readonly id: 'en' | 'zh-CN' | 'ru'
   readonly messages: DesktopMessages
 }
 
 /** Resolve Electron's locale to one shipped Desktop dictionary. */
 export function resolveDesktopLocale(locale: string): DesktopLocale {
-  return locale.toLowerCase().startsWith('zh')
-    ? { id: 'zh-CN', messages: zh }
-    : { id: 'en', messages: en }
+  const language = locale.toLowerCase()
+  if (language.startsWith('zh')) return { id: 'zh-CN', messages: zh }
+  if (language.startsWith('ru')) return { id: 'ru', messages: ru }
+  return { id: 'en', messages: en }
 }
 
 /**
@@ -372,10 +547,10 @@ export function resolveDesktopLocale(locale: string): DesktopLocale {
  */
 export function resolveDesktopStartupLocale(preference: string | null, languages: readonly string[]): DesktopLocale {
   const selected = preference?.toLowerCase()
-  if (selected === 'zh' || selected === 'en') return resolveDesktopLocale(selected)
+  if (selected === 'zh' || selected === 'en' || selected === 'ru') return resolveDesktopLocale(selected)
   for (const language of languages) {
     const primary = language.toLowerCase().split('-')[0]
-    if (primary === 'zh' || primary === 'en') return resolveDesktopLocale(primary)
+    if (primary === 'zh' || primary === 'en' || primary === 'ru') return resolveDesktopLocale(primary)
   }
   return resolveDesktopLocale('en')
 }
