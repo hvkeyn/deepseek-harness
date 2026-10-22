@@ -1,10 +1,11 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import { AttachedSkills, type AttachedSkillsInjected } from '../src/client/AttachedSkills.tsx'
 import { en } from '../src/client/locales.ts'
 
-const t = (key: keyof typeof en): string => en[key]
+const t: TranslateNS<'skill'> = (key) => en[key as keyof typeof en]
 
 afterEach(cleanup)
 
