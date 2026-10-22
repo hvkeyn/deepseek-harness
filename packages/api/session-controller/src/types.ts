@@ -263,6 +263,52 @@ export interface SkillListValue {
   readonly skills: readonly SkillEntry[]
 }
 
+/** One catalog skill as the management surface sees it. */
+export interface SkillAdminEntry {
+  /** Absolute instruction-file path when a filesystem provider supplied one. */
+  readonly path?: string
+  /** Kebab-case identifier. */
+  readonly name: string
+  /** Short routing description. */
+  readonly description: string
+  /** Whether the skill is currently withheld from the catalog. */
+  readonly enabled: boolean
+}
+
+/** Catalog plus withheld names for one Session composition. */
+export interface SkillAdminValue {
+  readonly skills: readonly SkillAdminEntry[]
+  readonly disabled: readonly string[]
+}
+
+/** Withhold or restore one skill without touching its file. */
+export interface SkillToggleRequest {
+  readonly sessionId: SessionId
+  readonly name: string
+  readonly enabled: boolean
+}
+
+/** Create a user skill file from Markdown. */
+export interface SkillCreateRequest {
+  readonly sessionId: SessionId
+  readonly name: string
+  readonly content: string
+}
+
+/** Remove one user skill file. */
+export interface SkillRemoveRequest {
+  readonly sessionId: SessionId
+  readonly name: string
+}
+
+/** Result of a management mutation. */
+export interface SkillMutationValue {
+  /** Absolute path of the file that was written or deleted. */
+  readonly path?: string
+  /** Withheld names after the mutation. */
+  readonly disabled: readonly string[]
+}
+
 /** Session list request. */
 export interface SessionListRequest {
   readonly cursor?: string

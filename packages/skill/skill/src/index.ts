@@ -116,6 +116,8 @@ export interface SkillLookupOptions {
 export interface SkillViewOptions extends SkillLookupOptions {
   /** Viewing scope (the calling agent); omitted reads the global layer alone. */
   readonly scope?: ScopeKey | undefined
+  /** Include skills withheld by {@link SkillRegistry.setDisabled}; management surfaces only. */
+  readonly includeDisabled?: boolean | undefined
 }
 
 /**
@@ -484,7 +486,7 @@ export class SkillRegistry extends Service {
     const collected = await this.collect(options)
     return {
       skills: [...collected.entries.values()]
-        .filter(entry => !this.disabled.has(entry.candidate.name))
+        .filter(entry => options.includeDisabled === true || !this.disabled.has(entry.candidate.name))
         .map(entry => toSummary(entry.candidate))
         .sort(compareSkillSummary),
       complete: collected.cacheable,
