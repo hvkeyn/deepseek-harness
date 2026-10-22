@@ -118,7 +118,8 @@ export class SessionSkillCatalog extends TypertRemoteService {
    * @throws RemoteError for an invalid name, an oversized body, or an existing file.
    */
   @Remote
-  async create(request: SkillCreateRequest, _signal: AbortSignal): Promise<SkillMutationValue> {
+  async create(request: SkillCreateRequest, signal: AbortSignal): Promise<SkillMutationValue> {
+    if (signal.aborted) throw new RemoteError('gateway/cancelled', 'skill creation was cancelled', {})
     if (!SKILL_NAME.test(request.name)) {
       throw new RemoteError('gateway/bad-request', `invalid skill name "${request.name}"`, {})
     }
