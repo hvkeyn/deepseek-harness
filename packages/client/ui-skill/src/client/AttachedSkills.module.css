@@ -1,0 +1,24 @@
+/* Attached-skill row: reads like composer chrome, tokens only. */
+
+.dock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 2px 0;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.label {
+  flex: none;
+  letter-spacing: 0.02em;
+}
+
+.names {
+  overflow: hidden;
+  font-family: var(--ds-font-family-code, monospace);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

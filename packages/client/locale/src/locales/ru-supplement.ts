@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Russian copy this fork adds on top of the community language pack: keys the
  * pack predates. Merged over the pack dictionaries at registration, so a pack
  * update that drops a key still falls back to this file.
@@ -139,6 +139,9 @@ export const ruSupplement: Record<string, Record<string, string>> = {
   'claude-code-mods': {
     'press.failed': 'Кнопка не сработала: {message}',
     'press.stale': 'Эта кнопка относилась к предыдущей отрисовке; полоса обновилась',
+  },
+  skill: {
+    'attached.title': 'Подключённые скиллы',
   },
   'settings.skills': {
     tab: 'Скиллы',

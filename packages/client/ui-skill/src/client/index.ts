@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Skill reference plugin, browser half: registers the '/' skill source —
  * candidates from the `skills/list` Remote addressed by the per-call session
  * projection's sessionId (sessions are always agent-backed; the host
@@ -48,6 +48,7 @@ import type {} from '@deepseek-ai/dsh-client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { AttachedSkills } from './AttachedSkills.tsx'
 import { SkillRow } from './SkillRow.tsx'
 import { SkillReference, type SkillReferenceInjected } from './SkillReference.tsx'
 import { skillReferenceRule } from './user-text-rules.ts'
@@ -93,6 +94,24 @@ export function apply(ctx: ClientContext): void {
 
   const skills = ctx.remote.skills
   const sessions = ctx.sessions
+
+  // Automatic attachment is a global preference, so the dock reads it without a
+  // Session identity: the names it shows are exactly what the host injects.
+  const attachedLoad = async (): Promise<{ autoAttach: boolean, names: readonly string[] }> => {
+    const result = await skills.listAdmin({})
+    if (!result.ok) throw new Error(`skills/listAdmin failed: ${result.error.code}: ${result.error.message}`)
+    return {
+      autoAttach: result.value.autoAttach,
+      names: result.value.skills.filter(skill => skill.enabled).map(skill => skill.name),
+    }
+  }
+  ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
+    name: 'conversation.composer.dock',
+    id: 'attached-skills',
+    order: 5,
+    locale: NS,
+    inject: () => ({ load: attachedLoad }),
+  }, AttachedSkills))
   // Session-keyed catalog cache; single-flight per key. Plugin-closure state:
   // the fiber effect below is its teardown boundary.
   const fetches = new Map<SessionId, CatalogFetch>()
