@@ -75,11 +75,19 @@ copy dist\win\deepseek-harness-0.2.2-win-x64-unsigned.exe dist\release-0.2.2\
 powershell packaging\sign-windows-selfsigned.ps1 -File dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.exe -CertificateOut dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.cer
 ```
 
-Copy `nightly.yml` and the `.exe.blockmap` from `apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/`, write `SHA256SUMS.txt` over the release directory, then create the release and upload every file from it:
+Copy `nightly.yml` and the `.exe.blockmap` from `apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/`, then rewrite the feed's relative URLs into absolute ones for this tag before uploading:
 
 ```
-gh release create binaries-0.2.2 -R hvkeyn/deepseek-harness --title "HVKeyn Edition 0.2.2" --notes-file notes.md dist\release-0.2.2\* apps\desktop\.desktop-build\targets\win-x64\unsigned-artifacts\nightly.yml
+powershell packaging\absolutize-feed.ps1 -Feed dist\release-0.2.4\nightly.yml -Tag binaries-0.2.4
 ```
+
+electron-updater resolves a relative `files[].url` against the feed URL it was served from, and `releases/latest/download/` is a moving redirect: a client that read one release's feed and starts downloading after `latest` moved asks the new tag for the old file name and fails with 404. Absolute URLs pin every feed to its own release, which stays downloadable. Write `SHA256SUMS.txt` over the release directory, then create the release and upload every file from it:
+
+```
+gh release create binaries-0.2.4 -R hvkeyn/deepseek-harness --title "HVKeyn Edition 0.2.4" --notes-file notes.md dist\release-0.2.4\*
+```
+
+When an older release's feed is still relative, republish that asset with the same script and `gh release upload --clobber` so clients holding its metadata get pinned URLs too.
 
 ##### Skills package
 
