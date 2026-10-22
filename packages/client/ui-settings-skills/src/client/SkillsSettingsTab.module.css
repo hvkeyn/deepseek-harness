@@ -1,4 +1,21 @@
-/* Skills management tab: one list, one add form, tokens only. */
+﻿/* Skills management tab: one list, one add form, tokens only. */
+
+.auto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+.autoText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
 
 .tab {
   display: flex;

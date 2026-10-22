@@ -38,8 +38,9 @@ export function apply(ctx: ClientContext): void {
   const actions: SkillsSettingsTabInjected = {
     list: async () => {
       const value = await unwrap(() => ctx.remote.skills.listAdmin({}))
-      return value.skills as readonly SkillAdminEntry[]
+      return { skills: value.skills as readonly SkillAdminEntry[], autoAttach: value.autoAttach }
     },
+    setAutoAttach: async (enabled) => { await unwrap(() => ctx.remote.skills.setAutoAttach({ enabled })) },
     setEnabled: async (name, enabled) => { await unwrap(() => ctx.remote.skills.setEnabled({ name, enabled })) },
     create: async (name, content) => { await unwrap(() => ctx.remote.skills.create({ name, content })) },
     remove: async (name) => { await unwrap(() => ctx.remote.skills.remove({ name })) },

@@ -9,16 +9,20 @@ const t = (key: keyof typeof en): string => en[key]
 afterEach(cleanup)
 
 function renderTab(overrides: Partial<SkillsSettingsTabInjected> = {}) {
-  const list = vi.fn(async () => ([
-    { name: 'review', description: 'Check a change before claiming it works', path: 'C:/home/.dsh/skills/review.md', enabled: true },
-    { name: 'learn', description: 'Teach a subject', enabled: false },
-  ]))
+  const setAutoAttach = vi.fn(async () => {})
+  const list = vi.fn(async () => ({
+    autoAttach: false,
+    skills: [
+      { name: 'review', description: 'Check a change before claiming it works', path: 'C:/home/.dsh/skills/review.md', enabled: true },
+      { name: 'learn', description: 'Teach a subject', enabled: false },
+    ],
+  }))
   const setEnabled = vi.fn(async () => {})
   const create = vi.fn(async () => {})
   const remove = vi.fn(async () => {})
-  const props = { t, list, setEnabled, create, remove, ...overrides }
+  const props = { t, list, setAutoAttach, setEnabled, create, remove, ...overrides }
   render(<SkillsSettingsTab {...props as unknown as SkillsSettingsTabProps} />)
-  return { list, setEnabled, create, remove }
+  return { list, setAutoAttach, setEnabled, create, remove }
 }
 
 describe('SkillsSettingsTab', () => {
@@ -30,11 +34,18 @@ describe('SkillsSettingsTab', () => {
     expect(screen.getAllByRole('switch', { name: en.enabled })).toHaveLength(2)
   })
 
+  it('turns automatic attachment on through the switch', async () => {
+    const { setAutoAttach } = renderTab()
+    await waitFor(() => { expect(screen.getByText('review')).toBeDefined() })
+    fireEvent.click(screen.getByRole('switch', { name: en.autoAttach }))
+    await waitFor(() => { expect(setAutoAttach).toHaveBeenCalledWith(true) })
+  })
+
   it('toggles a skill and reloads the catalog', async () => {
     const { setEnabled, list } = renderTab()
     await waitFor(() => { expect(screen.getByText('review')).toBeDefined() })
     list.mockClear()
-    const [first] = screen.getAllByRole('switch')
+    const [first] = screen.getAllByRole('switch', { name: en.enabled })
     fireEvent.click(first!)
     await waitFor(() => { expect(setEnabled).toHaveBeenCalledWith('review', false) })
     await waitFor(() => { expect(list).toHaveBeenCalledTimes(1) })

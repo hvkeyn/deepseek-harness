@@ -1,4 +1,4 @@
-/** Session-addressed, cold-readable skill catalog Remote and its management surface. */
+﻿/** Session-addressed, cold-readable skill catalog Remote and its management surface. */
 
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
@@ -13,7 +13,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join, relative, isAbsolute } from 'node:path'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
-  SkillAdminListRequest, SkillAdminValue, SkillCreateRequest, SkillListRequest, SkillListValue, SkillMutationValue,
+  SkillAdminListRequest, SkillAdminValue, SkillAutoAttachRequest, SkillAutoAttachValue, SkillCreateRequest, SkillListRequest, SkillListValue, SkillMutationValue,
   SkillRemoveRequest, SkillToggleRequest,
 } from './types.ts'
 
@@ -80,6 +80,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
     const skills = await target.registry.list({ cwd: target.cwd, scope: target.scope, includeDisabled: true })
     return {
       disabled,
+      autoAttach: this.readAutoAttach(),
       skills: skills.map(skill => ({
         name: skill.name,
         description: skill.description,
@@ -87,6 +88,21 @@ export class SessionSkillCatalog extends TypertRemoteService {
         enabled: !disabled.includes(skill.name),
       })),
     }
+  }
+
+  /**
+   * Turn automatic attachment of enabled skills on or off. In automatic mode a
+   * Session receives the instructions of every enabled skill without a manual
+   * `/name` or a `skill` tool call; the setting is shared by every workspace.
+   * @param request - desired state; the Session is optional for the global setting.
+   * @param signal - caller lifetime carried by the Remote transport.
+   * @returns the stored state and the withheld names.
+   */
+  @Remote
+  async setAutoAttach(request: SkillAutoAttachRequest, signal: AbortSignal): Promise<SkillAutoAttachValue> {
+    const target = await this.targetFor(request.sessionId, signal)
+    this.writeSettings(target.registry, { autoAttach: request.enabled })
+    return { autoAttach: request.enabled, disabled: this.readDisabled() }
   }
 
   /**
@@ -106,7 +122,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
     const disabled = new Set(this.readDisabled())
     if (request.enabled) disabled.delete(request.name)
     else disabled.add(request.name)
-    this.writeDisabled(target.registry, [...disabled])
+    this.writeSettings(target.registry, { disabled: [...disabled] })
     return { disabled: [...disabled] }
   }
 
@@ -165,7 +181,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
     }
     rmSync(path, { force: true })
     const disabled = this.readDisabled().filter(name => name !== request.name)
-    this.writeDisabled(target.registry, disabled)
+    this.writeSettings(target.registry, { disabled })
     return { path, disabled }
   }
 
@@ -183,29 +199,44 @@ export class SessionSkillCatalog extends TypertRemoteService {
     return relativePath !== '' && !relativePath.startsWith('..') && !isAbsolute(relativePath)
   }
 
-  private readDisabled(): string[] {
+  /** Read the stored enablement document; a missing file is the normal first run. */
+  private readSettings(): { disabled: string[], autoAttach: boolean } {
     try {
       const parsed: unknown = JSON.parse(readFileSync(join(this.dshHome(), 'skills.json'), 'utf8'))
-      if (typeof parsed !== 'object' || parsed === null) return []
+      if (typeof parsed !== 'object' || parsed === null) return { disabled: [], autoAttach: false }
       const value = (parsed as { disabled?: unknown }).disabled
-      return Array.isArray(value) ? value.filter((name): name is string => typeof name === 'string') : []
+      const disabled = Array.isArray(value) ? value.filter((name): name is string => typeof name === 'string') : []
+      return { disabled, autoAttach: (parsed as { autoAttach?: unknown }).autoAttach === true }
     } catch (error: unknown) {
-      // A missing file is the normal first run; anything else is worth a diagnostic.
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        this.ctx.logger.warn(`skills: stored enablement is unreadable: ${String(error)}`)
+        this.ctx.logger.warn(`skills: stored settings are unreadable: ${String(error)}`)
       }
-      return []
+      return { disabled: [], autoAttach: false }
     }
+  }
+
+  private readDisabled(): string[] {
+    return this.readSettings().disabled
+  }
+
+  private readAutoAttach(): boolean {
+    return this.readSettings().autoAttach
   }
 
   private applyStoredDisabled(registry: SkillRegistry): void {
     registry.setDisabled(this.readDisabled())
   }
 
-  private writeDisabled(registry: SkillRegistry, names: readonly string[]): void {
+  /** Merge one setting into the stored document and apply the enablement it carries. */
+  private writeSettings(registry: SkillRegistry, patch: { disabled?: readonly string[], autoAttach?: boolean }): void {
+    const current = this.readSettings()
+    const next = {
+      disabled: patch.disabled === undefined ? current.disabled : [...new Set(patch.disabled)],
+      autoAttach: patch.autoAttach === undefined ? current.autoAttach : patch.autoAttach,
+    }
     mkdirSync(this.dshHome(), { recursive: true })
-    writeFileSync(join(this.dshHome(), 'skills.json'), `${JSON.stringify({ disabled: [...new Set(names)] }, null, 2)}\n`, 'utf8')
-    registry.setDisabled(names)
+    writeFileSync(join(this.dshHome(), 'skills.json'), `${JSON.stringify(next, null, 2)}\n`, 'utf8')
+    registry.setDisabled(next.disabled)
   }
 
   /**

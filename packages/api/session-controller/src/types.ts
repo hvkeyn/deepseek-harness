@@ -1,4 +1,4 @@
-/** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
+﻿/** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
 import type { NativeFileApplication } from '@deepseek-ai/dsh-native-command/types'
 
 import type {
@@ -279,6 +279,21 @@ export interface SkillAdminEntry {
 export interface SkillAdminValue {
   readonly skills: readonly SkillAdminEntry[]
   readonly disabled: readonly string[]
+  /** Whether enabled skills are attached to every Session automatically. */
+  readonly autoAttach: boolean
+}
+
+/** Stored automatic-attachment state plus the withheld names. */
+export interface SkillAutoAttachValue {
+  readonly autoAttach: boolean
+  readonly disabled: readonly string[]
+}
+
+/** Turn the automatic attachment of enabled skills on or off. */
+export interface SkillAutoAttachRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly enabled: boolean
 }
 
 /** Read the management catalog; the Session is optional for a global settings surface. */

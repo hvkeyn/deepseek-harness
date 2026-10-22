@@ -1,10 +1,12 @@
-/** `settings.skills` namespace dictionaries (the Skills management tab). */
+﻿/** `settings.skills` namespace dictionaries (the Skills management tab). */
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
   tab: '技能',
   title: '技能',
   description: '本地技能：启用、添加或删除。文件位于 ~/.dsh/skills 和项目的 .dsh/skills。',
+  autoAttach: '自动附加技能',
+  autoAttachDescription: '启用后，已启用的技能会随每个会话自动生效，无需手动 /名字 或调用 skill。',
   enabled: '已启用',
   noSkills: '还没有技能。在下方添加第一个，或把技能包解压到 ~/.dsh/skills。',
   addTitle: '新建技能',
@@ -28,6 +30,8 @@ export const en = {
   tab: 'Skills',
   title: 'Skills',
   description: 'Local skills: enable, add, or remove. Files live in ~/.dsh/skills and the project’s .dsh/skills.',
+  autoAttach: 'Auto-attach skills',
+  autoAttachDescription: 'When on, enabled skills apply to every session without a /name or a skill call.',
   enabled: 'Enabled',
   noSkills: 'No skills yet. Add the first one below, or unpack the skills package into ~/.dsh/skills.',
   addTitle: 'New skill',

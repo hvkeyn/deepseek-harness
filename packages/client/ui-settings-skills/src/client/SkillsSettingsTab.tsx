@@ -9,7 +9,9 @@ import css from './SkillsSettingsTab.module.css'
 /** Business face injected by the registrant: Remote calls, not React wiring. */
 export interface SkillsSettingsTabInjected {
   /** Read the catalog, including skills withheld from the model. */
-  readonly list: () => Promise<readonly SkillAdminEntry[]>
+  readonly list: () => Promise<{ skills: readonly SkillAdminEntry[], autoAttach: boolean }>
+  /** Turn automatic attachment of enabled skills on or off. */
+  readonly setAutoAttach: (enabled: boolean) => Promise<void>
   /** Withhold or restore one skill without deleting its file. */
   readonly setEnabled: (name: string, enabled: boolean) => Promise<void>
   /** Write a new user skill file. */
@@ -30,8 +32,9 @@ const NAME = /^[a-z][a-z0-9-]{1,39}$/u
  * @param props - composed slot props and the Remote-backed actions.
  * @returns the tab element tree.
  */
-export function SkillsSettingsTab({ t, list, setEnabled, create, remove }: SkillsSettingsTabProps) {
+export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, remove }: SkillsSettingsTabProps) {
   const [skills, setSkills] = useState<readonly SkillAdminEntry[] | undefined>(undefined)
+  const [autoAttach, setAutoAttachState] = useState(false)
   const [name, setName] = useState('')
   const [content, setContent] = useState('')
   const [busy, setBusy] = useState(false)
@@ -39,7 +42,9 @@ export function SkillsSettingsTab({ t, list, setEnabled, create, remove }: Skill
 
   const refresh = async (): Promise<void> => {
     try {
-      setSkills(await list())
+      const value = await list()
+      setSkills(value.skills)
+      setAutoAttachState(value.autoAttach)
     } catch (failure: unknown) {
       setError(failure instanceof Error ? failure.message : String(failure))
     }
@@ -48,12 +53,24 @@ export function SkillsSettingsTab({ t, list, setEnabled, create, remove }: Skill
   useEffect(() => {
     let active = true
     void list()
-      .then((entries) => { if (active) setSkills(entries) })
+      .then((value) => { if (active) { setSkills(value.skills); setAutoAttachState(value.autoAttach) } })
       .catch((failure: unknown) => {
         if (active) setError(failure instanceof Error ? failure.message : String(failure))
       })
     return () => { active = false }
   }, [list])
+
+  const toggleAuto = async (enabled: boolean): Promise<void> => {
+    setError('')
+    const previous = autoAttach
+    setAutoAttachState(enabled)
+    try {
+      await setAutoAttach(enabled)
+    } catch (failure: unknown) {
+      setAutoAttachState(previous)
+      setError(failure instanceof Error ? failure.message : t('toggleFailed'))
+    }
+  }
 
   const toggle = async (entry: SkillAdminEntry, enabled: boolean): Promise<void> => {
     setError('')
@@ -101,6 +118,13 @@ export function SkillsSettingsTab({ t, list, setEnabled, create, remove }: Skill
         <p className={css.description}>{t('description')}</p>
       </header>
       {error === '' ? null : <p className={css.error} role="alert">{error}</p>}
+      <div className={css.auto}>
+        <div className={css.autoText}>
+          <span className={css.name}>{t('autoAttach')}</span>
+          <span className={css.summary}>{t('autoAttachDescription')}</span>
+        </div>
+        <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
+      </div>
       {skills === undefined
         ? <p className={css.empty}>{t('adding')}</p>
         : skills.length === 0

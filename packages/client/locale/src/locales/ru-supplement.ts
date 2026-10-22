@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Russian copy this fork adds on top of the community language pack: keys the
  * pack predates. Merged over the pack dictionaries at registration, so a pack
  * update that drops a key still falls back to this file.
@@ -144,6 +144,8 @@ export const ruSupplement: Record<string, Record<string, string>> = {
     tab: 'Скиллы',
     title: 'Скиллы',
     description: 'Локальные скиллы: включить, добавить или удалить. Файлы лежат в ~/.dsh/skills и в .dsh/skills проекта.',
+    autoAttach: 'Автоподключение скиллов',
+    autoAttachDescription: 'Когда включено, включённые скиллы действуют в каждой сессии без /имя и без вызова skill.',
     enabled: 'Включён',
     noSkills: 'Скиллов пока нет. Добавьте первый ниже или распакуйте пакет скиллов в ~/.dsh/skills.',
     addTitle: 'Новый скилл',
