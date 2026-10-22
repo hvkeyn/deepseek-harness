@@ -57,6 +57,32 @@ DSH_DESKTOP_UPDATE_FEED_URL=https://github.com/hvkeyn/deepseek-harness/releases/
 
 A build made with that setting emits `nightly.yml` (the `nightly` channel is the only one an `-rc` version may use) and a `.exe.blockmap` beside the installer. Publish both with the installer itself: `nightly.yml` records the installer's size and SHA-512, so the yml and the executable must come from the same build. The installed application then reads `<feed>/nightly.yml`, compares versions, and downloads the next release when one appears; without the yml it reports that the application has no packaged update source.
 
+#### Cutting a release that installed copies can update to
+
+The updater compares semantic versions, so a rebuild of the same version never reaches anyone: raise the version first. The repository owns one family version for all 343 packages, and the bump tool rewrites and commits it together:
+
+```
+pnpm run release:dsh 0.2.2          # patch | minor | major | x.y.z
+pnpm exec tsx scripts/release/verify.ts --family dsh
+```
+
+Then build, sign, and publish under a tag named after the version:
+
+```
+build.bat --desktop                              # produces dist\win\deepseek-harness-0.2.2-win-x64-unsigned.exe
+new-item -itemtype directory dist\release-0.2.2
+copy dist\win\deepseek-harness-0.2.2-win-x64-unsigned.exe dist\release-0.2.2\
+powershell packaging\sign-windows-selfsigned.ps1 -File dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.exe -CertificateOut dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.cer
+```
+
+Copy `nightly.yml` and the `.exe.blockmap` from `apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/`, write `SHA256SUMS.txt` over the release directory, then create the release and upload every file from it:
+
+```
+gh release create binaries-0.2.2 -R hvkeyn/deepseek-harness --title "HVKeyn Edition 0.2.2" --notes-file notes.md dist\release-0.2.2\* apps\desktop\.desktop-build\targets\win-x64\unsigned-artifacts\nightly.yml
+```
+
+Keep the release a normal (not prerelease) release: `releases/latest/download/nightly.yml` only resolves through the newest normal release, and that URL is what installed builds poll. An installed copy of an older version then offers the update by itself.
+
 ### Windows 7 clients
 
 A Windows 7 machine cannot run the Desktop application, but it can drive a harness that runs elsewhere: the Web UI is the whole product, and every tool, terminal, and file operation executes on the Host. Run the Host on a supported machine and open its address from the Windows 7 client:
