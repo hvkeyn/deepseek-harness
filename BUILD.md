@@ -81,6 +81,17 @@ Copy `nightly.yml` and the `.exe.blockmap` from `apps/desktop/.desktop-build/tar
 gh release create binaries-0.2.2 -R hvkeyn/deepseek-harness --title "HVKeyn Edition 0.2.2" --notes-file notes.md dist\release-0.2.2\* apps\desktop\.desktop-build\targets\win-x64\unsigned-artifacts\nightly.yml
 ```
 
+##### Skills package
+
+The example skills ship as their own download beside the installer, so a user can install them without copying files one by one:
+
+```
+powershell packaging\make-skills-package.ps1 -Version 1.0.0
+gh release upload binaries-0.2.2 -R hvkeyn/deepseek-harness dist\skills\hvkeyn-skills-1.0.0.zip dist\skills\hvkeyn-skills-1.0.0.tar.gz
+```
+
+Attach it to the **same** release as `nightly.yml`: `releases/latest/download/nightly.yml` resolves through the newest normal release, so a separate skills-only release would take the "latest" slot and break the update check. The package holds the `.md` files from `.dsh/skills`, a `manifest.json` listing each skill's name and summary, and an install note pointing at `%USERPROFILE%\.dsh\skills` (all projects) or `<project>\.dsh\skills` (one project).
+
 Keep the release a normal (not prerelease) release: `releases/latest/download/nightly.yml` only resolves through the newest normal release, and that URL is what installed builds poll. An installed copy of an older version then offers the update by itself.
 
 ### Windows 7 clients
