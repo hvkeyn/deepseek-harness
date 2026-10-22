@@ -21,6 +21,8 @@ import {
   type BuiltInLocaleId, type LocaleId, type LocaleSettings,
 } from '../locale-settings.ts'
 import { en, zh, type CommonKey } from '../locales/index.ts'
+import { ru } from '../locales/ru.ts'
+import { ruSupplement } from '../locales/ru-supplement.ts'
 import {
   en as settingsEn, zh as settingsZh, type SettingsLocaleKey,
 } from '../locales/settings.ts'
@@ -578,6 +580,16 @@ export async function apply(ctx: ClientContext): Promise<void> {
   const locale = new LocaleRuntime(ctx, host, bootstrap)
   locale.register(COMMON_NS, { zh, en })
   locale.register(SETTINGS_NS, { zh: settingsZh, en: settingsEn })
+  // The Russian dictionaries ship as one data module from the community pack, with this
+  // fork's supplement merged over keys the pack predates; each namespace falls back to
+  // English for a key neither file translates. The language is added at runtime, so no
+  // package has to type a Russian dictionary.
+  const russian: Record<string, Record<string, string>> = { ...ru }
+  for (const [namespace, dictionary] of Object.entries(ruSupplement)) {
+    russian[namespace] = { ...russian[namespace], ...dictionary }
+  }
+  for (const [namespace, dictionary] of Object.entries(russian)) locale.register(namespace, 'ru', dictionary)
+  ctx.effect(() => locale.addLanguage({ id: 'ru', label: 'Русский', fallback: 'en' }), 'locale: russian pack')
   ctx.provide('locale', locale)
   if (bridge !== undefined) {
     ctx.on('locale/change', (snapshot) => { bridge.onChange(snapshot.active) })
