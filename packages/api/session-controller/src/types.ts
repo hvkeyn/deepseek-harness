@@ -281,23 +281,32 @@ export interface SkillAdminValue {
   readonly disabled: readonly string[]
 }
 
+/** Read the management catalog; the Session is optional for a global settings surface. */
+export interface SkillAdminListRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+}
+
 /** Withhold or restore one skill without touching its file. */
 export interface SkillToggleRequest {
-  readonly sessionId: SessionId
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
   readonly name: string
   readonly enabled: boolean
 }
 
 /** Create a user skill file from Markdown. */
 export interface SkillCreateRequest {
-  readonly sessionId: SessionId
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
   readonly name: string
   readonly content: string
 }
 
 /** Remove one user skill file. */
 export interface SkillRemoveRequest {
-  readonly sessionId: SessionId
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
   readonly name: string
 }
 

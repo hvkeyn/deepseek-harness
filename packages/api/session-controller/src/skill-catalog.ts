@@ -13,7 +13,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join, relative, isAbsolute } from 'node:path'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
-  SkillAdminValue, SkillCreateRequest, SkillListRequest, SkillListValue, SkillMutationValue,
+  SkillAdminListRequest, SkillAdminValue, SkillCreateRequest, SkillListRequest, SkillListValue, SkillMutationValue,
   SkillRemoveRequest, SkillToggleRequest,
 } from './types.ts'
 
@@ -73,7 +73,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
    * @returns catalog entries and the withheld names.
    */
   @Remote
-  async listAdmin(request: SkillListRequest, signal: AbortSignal): Promise<SkillAdminValue> {
+  async listAdmin(request: SkillAdminListRequest, signal: AbortSignal): Promise<SkillAdminValue> {
     const target = await this.targetFor(request.sessionId, signal)
     const disabled = this.readDisabled()
     target.registry.setDisabled(disabled)
@@ -216,8 +216,15 @@ export class SessionSkillCatalog extends TypertRemoteService {
    * @returns registry, workspace cwd, and the optional scope key.
    */
   private async targetFor(
-    sessionId: SessionId, signal: AbortSignal,
+    sessionId: SessionId | undefined, signal: AbortSignal,
   ): Promise<{ registry: SkillRegistry, cwd: string, scope: ScopeKey | undefined }> {
+    if (sessionId === undefined) {
+      const registry = this.ctx.get('skills')
+      if (registry === undefined) {
+        throw new RemoteError('gateway/internal', 'skill registry is absent from the host composition', {})
+      }
+      return { registry, cwd: this.ctx.workingDirectory.defaultDirectory, scope: undefined }
+    }
     let cwd: string
     let agentPreset: string | undefined
     try {
