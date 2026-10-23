@@ -1,4 +1,4 @@
-﻿/** `settings.skills` namespace dictionaries (the Skills management tab). */
+/** `settings.skills` namespace dictionaries (the Skills management tab). */
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
@@ -31,6 +31,12 @@ export const zh = {
   'catalog.notInstalled': '未安装',
   'catalog.updateAvailable': '有可用更新',
   'catalog.failed': '无法读取或安装目录技能。',
+  'catalog.loading': '加载中…',
+  'catalog.installing': '正在下载 {name}…',
+  'catalog.done': '已完成：{name} 已安装',
+  'status.enabled': '{name} 已启用',
+  'status.disabled': '{name} 已停用',
+  'status.removed': '{name} 已删除',
 } satisfies Record<string, string>
 
 /** The `settings.skills` namespace key union. */
@@ -67,4 +73,10 @@ export const en = {
   'catalog.notInstalled': 'Not installed',
   'catalog.updateAvailable': 'Update available',
   'catalog.failed': 'Could not read or install a catalog skill.',
+  'catalog.loading': 'Loading…',
+  'catalog.installing': 'Downloading {name}…',
+  'catalog.done': 'Done: {name} installed',
+  'status.enabled': '{name} enabled',
+  'status.disabled': '{name} disabled',
+  'status.removed': '{name} removed',
 } satisfies Record<SkillsLocaleKey, string>

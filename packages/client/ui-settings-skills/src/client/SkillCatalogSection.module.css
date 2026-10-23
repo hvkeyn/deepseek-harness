@@ -1,4 +1,4 @@
-/* Remote catalog block: header with one action, then compact rows. */
+﻿/* Remote catalog block: header with one action, then compact rows. */
 
 .section {
   display: flex;
@@ -25,11 +25,25 @@
 }
 
 .hint,
+.notice {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
 .error {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
   color: var(--dsw-alias-label-tertiary);
+}
+
+.notice {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
 }
 
 .error {

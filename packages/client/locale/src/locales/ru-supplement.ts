@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Russian copy this fork adds on top of the community language pack: keys the
  * pack predates. Merged over the pack dictionaries at registration, so a pack
  * update that drops a key still falls back to this file.
@@ -173,5 +173,11 @@ export const ruSupplement: Record<string, Record<string, string>> = {
     'catalog.notInstalled': 'Не установлен',
     'catalog.updateAvailable': 'Есть обновление',
     'catalog.failed': 'Не удалось прочитать каталог или установить скилл.',
+    'catalog.loading': 'Загрузка…',
+    'catalog.installing': 'Скачиваю {name}…',
+    'catalog.done': 'Готово: {name} установлен',
+    'status.enabled': '{name} включён',
+    'status.disabled': '{name} выключен',
+    'status.removed': '{name} удалён',
   },
 }

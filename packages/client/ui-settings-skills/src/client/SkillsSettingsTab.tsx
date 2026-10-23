@@ -1,4 +1,4 @@
-﻿/** Skills management tab: list local skills, toggle them, add and remove files. */
+/** Skills management tab: list local skills, toggle them, add and remove files. */
 
 import { useEffect, useState } from 'react'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
@@ -43,6 +43,7 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
   const [content, setContent] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [status, setStatus] = useState('')
 
   const refresh = async (): Promise<void> => {
     try {
@@ -78,9 +79,11 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
 
   const toggle = async (entry: SkillAdminEntry, enabled: boolean): Promise<void> => {
     setError('')
+    setStatus('')
     try {
       await setEnabled(entry.name, enabled)
       await refresh()
+      setStatus(t(enabled ? 'status.enabled' : 'status.disabled').replace('{name}', entry.name))
     } catch (failure: unknown) {
       setError(failure instanceof Error ? failure.message : t('toggleFailed'))
     }
@@ -107,9 +110,11 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
 
   const drop = async (entry: SkillAdminEntry): Promise<void> => {
     setError('')
+    setStatus('')
     try {
       await remove(entry.name)
       await refresh()
+      setStatus(t('status.removed').replace('{name}', entry.name))
     } catch (failure: unknown) {
       setError(failure instanceof Error ? failure.message : t('removeFailed'))
     }
@@ -122,6 +127,7 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
         <p className={css.description}>{t('description')}</p>
       </header>
       {error === '' ? null : <p className={css.error} role="alert">{error}</p>}
+      {status === '' ? null : <p className={css.summary} role="status">{status}</p>}
       <div className={css.auto}>
         <div className={css.autoText}>
           <span className={css.name}>{t('autoAttach')}</span>
