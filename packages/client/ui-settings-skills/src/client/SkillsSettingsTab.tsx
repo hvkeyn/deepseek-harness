@@ -1,7 +1,7 @@
-/** Skills management tab: list local skills, toggle them, add and remove files. */
+﻿/** Skills management tab: list local skills, toggle them, add and remove files. */
 
 import { useEffect, useState } from 'react'
-import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import { Switch } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { SkillAdminEntry } from './api.ts'
 import css from './SkillsSettingsTab.module.css'
@@ -21,8 +21,7 @@ export interface SkillsSettingsTabInjected {
 }
 
 /** Full component props: runtime share, locale seat, and the injected face. */
-export type SkillsSettingsTabProps =
-  PropsRuntime<'settings.plugins.tab'> & PropsLocale<'settings.skills'> & SkillsSettingsTabInjected
+export type SkillsSettingsTabProps = PropsLocale<'settings.skills'> & SkillsSettingsTabInjected
 
 /** Name accepted by the local skill contract. */
 const NAME = /^[a-z][a-z0-9-]{1,39}$/u

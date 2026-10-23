@@ -3,8 +3,11 @@
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import { SkillsSettingsTab, type SkillsSettingsTabInjected } from './SkillsSettingsTab.tsx'
+import { SkillsPanelIcon } from './SkillsPanelIcon.tsx'
 import { en, zh, type SkillsLocaleKey } from './locales.ts'
 import type { SkillAdminEntry } from './api.ts'
 
@@ -54,4 +57,21 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     inject: (): SkillsSettingsTabInjected => actions,
   }, SkillsSettingsTab))
+
+  // The same management surface as a first-class page in the left panel, so a
+  // skill is toggled without opening Settings. Order 5 places it between Plugins
+  // (0) and Automation tasks (10).
+  ctx.slots.inject('main', () => ctx.slots.register({
+    name: 'main',
+    key: 'skills' as MainPanelId,
+    locale: NS,
+    inject: (): SkillsSettingsTabInjected => actions,
+  }, SkillsSettingsTab))
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+    name: 'sidebar.panellist',
+    id: 'skills' as MainPanelId,
+    order: 5,
+    label: () => t('tab'),
+    locale: NS,
+  }, SkillsPanelIcon))
 }
