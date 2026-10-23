@@ -9,11 +9,13 @@ import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
 import type {} from '@deepseek-ai/dsh-working-directory'
 import type { ScopeKey } from '@deepseek-ai/dsh-scope'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { join, relative, isAbsolute } from 'node:path'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
-  SkillAdminListRequest, SkillAdminValue, SkillAutoAttachRequest, SkillAutoAttachValue, SkillCreateRequest, SkillListRequest, SkillListValue, SkillMutationValue,
+  SkillAdminListRequest, SkillAdminValue, SkillAutoAttachRequest, SkillAutoAttachValue, SkillCatalogEntry, SkillCatalogValue, SkillCreateRequest,
+  SkillInstallRequest, SkillInstallValue, SkillListRequest, SkillListValue, SkillMutationValue,
   SkillRemoveRequest, SkillToggleRequest,
 } from './types.ts'
 
@@ -185,6 +187,80 @@ export class SessionSkillCatalog extends TypertRemoteService {
     return { path, disabled }
   }
 
+  /**
+   * Read the published skill catalog and hash the locally installed files, so a
+   * client can show what is installed and what has an update.
+   * @param request - optional Session; the catalog is the same for every Session.
+   * @param signal - caller lifetime carried by the Remote transport.
+   * @returns catalog entries and the installed name/hash pairs.
+   * @throws RemoteError when the index cannot be fetched or parsed.
+   */
+  @Remote
+  async fetchCatalog(_request: SkillAdminListRequest, signal: AbortSignal): Promise<SkillCatalogValue> {
+    const source = skillsIndexUrl()
+    const response = await fetch(source, { signal, headers: { accept: 'application/json' } })
+    if (!response.ok) {
+      throw new RemoteError('gateway/internal', `skill catalog request failed: ${String(response.status)}`, {})
+    }
+    return { source, skills: parseCatalog(await response.json()), installed: this.installedSkills() }
+  }
+
+  /**
+   * Install or refresh one catalog skill into `<dshHome>/skills`.
+   * @param request - catalog skill name.
+   * @param signal - caller lifetime carried by the Remote transport.
+   * @returns the written path and its hash.
+   * @throws RemoteError for an invalid name, a missing catalog entry, a bad hash, or a failed download.
+   */
+  @Remote
+  async installSkill(request: SkillInstallRequest, signal: AbortSignal): Promise<SkillInstallValue> {
+    if (!SKILL_NAME.test(request.name)) {
+      throw new RemoteError('gateway/bad-request', `invalid skill name "${request.name}"`, {})
+    }
+    const source = skillsIndexUrl()
+    const response = await fetch(source, { signal, headers: { accept: 'application/json' } })
+    if (!response.ok) {
+      throw new RemoteError('gateway/internal', `skill catalog request failed: ${String(response.status)}`, {})
+    }
+    const entry = parseCatalog(await response.json()).find(skill => skill.name === request.name)
+    if (entry === undefined) {
+      throw new RemoteError('gateway/bad-request', `skill "${request.name}" is not in the catalog`, {})
+    }
+    const file = await fetch(entry.url, { signal })
+    if (!file.ok) {
+      throw new RemoteError('gateway/internal', `skill download failed: ${String(file.status)}`, {})
+    }
+    const text = await file.text()
+    const hash = createHash('sha256').update(text, 'utf8').digest('hex')
+    if (hash !== entry.sha256.toLowerCase()) {
+      throw new RemoteError('gateway/internal', `skill "${request.name}" failed its hash check`, {})
+    }
+    mkdirSync(join(this.dshHome(), 'skills'), { recursive: true })
+    const path = this.userSkillPath(request.name)
+    writeFileSync(path, text, 'utf8')
+    return { name: request.name, path, sha256: hash }
+  }
+
+  /** @returns installed user skills with the hash of each file on disk. */
+  private installedSkills(): { name: string, sha256: string }[] {
+    const root = join(this.dshHome(), 'skills')
+    let names: string[]
+    try {
+      names = readdirSync(root).filter(file => file.endsWith('.md'))
+    } catch (error: unknown) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+      this.ctx.logger.warn(`skills: installed list is unreadable: ${String(error)}`)
+      return []
+    }
+    return names
+      .map(file => file.slice(0, -3))
+      .filter(name => SKILL_NAME.test(name))
+      .map(name => ({
+        name,
+        sha256: createHash('sha256').update(readFileSync(this.userSkillPath(name), 'utf8'), 'utf8').digest('hex'),
+      }))
+  }
+
   private dshHome(): string {
     return resolveDshHome()
   }
@@ -310,6 +386,48 @@ export class SessionSkillCatalog extends TypertRemoteService {
       return undefined
     }
   }
+}
+
+/** Where a deployment reads its skill catalog from. */
+const DEFAULT_SKILLS_INDEX_URL = 'https://github.com/hvkeyn/deepseek-harness/releases/latest/download/skills-index.json'
+
+/** @returns the configured catalog index URL. */
+function skillsIndexUrl(): string {
+  return process.env.DSH_SKILLS_INDEX_URL ?? DEFAULT_SKILLS_INDEX_URL
+}
+
+/**
+ * Read the catalog document, rejecting a malformed one at the network boundary.
+ * @param parsed - JSON body of the catalog index.
+ * @returns the validated entries.
+ * @throws RemoteError when the document is not a catalog.
+ */
+function parseCatalog(parsed: unknown): SkillCatalogEntry[] {
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new RemoteError('gateway/internal', 'skill catalog is not an object', {})
+  }
+  const skills = (parsed as { skills?: unknown }).skills
+  if (!Array.isArray(skills)) {
+    throw new RemoteError('gateway/internal', 'skill catalog has no skills array', {})
+  }
+  return skills.map((raw) => {
+    const value = raw as { name?: unknown, version?: unknown, url?: unknown, sha256?: unknown, description?: unknown }
+    if (typeof value.name !== 'string' || typeof value.url !== 'string' || typeof value.sha256 !== 'string') {
+      throw new RemoteError('gateway/internal', 'skill catalog entry is malformed', {})
+    }
+    const description = value.description as { en?: unknown, ru?: unknown, zh?: unknown } | undefined
+    return {
+      name: value.name,
+      version: typeof value.version === 'string' ? value.version : '',
+      url: value.url,
+      sha256: value.sha256,
+      description: {
+        en: typeof description?.en === 'string' ? description.en : '',
+        ...typeof description?.ru === 'string' ? { ru: description.ru } : {},
+        ...typeof description?.zh === 'string' ? { zh: description.zh } : {},
+      },
+    }
+  })
 }
 
 export default SessionSkillCatalog

@@ -17,10 +17,12 @@ function renderTab(overrides: Partial<SkillsSettingsTabInjected> = {}) {
       { name: 'learn', description: 'Teach a subject', enabled: false },
     ],
   }))
+  const loadCatalog = vi.fn(async () => ({ skills: [], installed: [] }))
+  const install = vi.fn(async () => {})
   const setEnabled = vi.fn(async () => {})
   const create = vi.fn(async () => {})
   const remove = vi.fn(async () => {})
-  const props = { t, list, setAutoAttach, setEnabled, create, remove, ...overrides }
+  const props = { t, list, setAutoAttach, setEnabled, create, remove, loadCatalog, install, ...overrides }
   render(<SkillsSettingsTab {...props as unknown as SkillsSettingsTabProps} />)
   return { list, setAutoAttach, setEnabled, create, remove }
 }

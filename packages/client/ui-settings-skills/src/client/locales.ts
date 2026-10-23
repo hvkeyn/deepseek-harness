@@ -20,6 +20,17 @@ export const zh = {
   toggleFailed: '无法更改技能状态。',
   removeFailed: '无法删除技能。',
   invalidName: '名称：小写字母、数字和连字符，以字母开头。',
+  'catalog.title': '技能目录',
+  'catalog.load': '加载目录',
+  'catalog.reload': '刷新',
+  'catalog.hint': '目录从发布页读取；加载后可安装或更新技能。',
+  'catalog.empty': '目录里还没有技能。',
+  'catalog.install': '安装',
+  'catalog.update': '更新',
+  'catalog.installed': '已安装',
+  'catalog.notInstalled': '未安装',
+  'catalog.updateAvailable': '有可用更新',
+  'catalog.failed': '无法读取或安装目录技能。',
 } satisfies Record<string, string>
 
 /** The `settings.skills` namespace key union. */
@@ -45,4 +56,15 @@ export const en = {
   toggleFailed: 'Could not change the skill state.',
   removeFailed: 'Could not remove the skill.',
   invalidName: 'Name: lowercase letters, digits, and hyphens, starting with a letter.',
+  'catalog.title': 'Skill catalog',
+  'catalog.load': 'Load catalog',
+  'catalog.reload': 'Refresh',
+  'catalog.hint': 'The catalog is read from the release page; load it to install or update a skill.',
+  'catalog.empty': 'The catalog has no skills yet.',
+  'catalog.install': 'Install',
+  'catalog.update': 'Update',
+  'catalog.installed': 'Installed',
+  'catalog.notInstalled': 'Not installed',
+  'catalog.updateAvailable': 'Update available',
+  'catalog.failed': 'Could not read or install a catalog skill.',
 } satisfies Record<SkillsLocaleKey, string>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import { Switch } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { SkillAdminEntry } from './api.ts'
+import { SkillCatalogSection, type CatalogSnapshot } from './SkillCatalogSection.tsx'
 import css from './SkillsSettingsTab.module.css'
 
 /** Business face injected by the registrant: Remote calls, not React wiring. */
@@ -18,6 +19,10 @@ export interface SkillsSettingsTabInjected {
   readonly create: (name: string, content: string) => Promise<void>
   /** Delete a user skill file. */
   readonly remove: (name: string) => Promise<void>
+  /** Read the published catalog. */
+  readonly loadCatalog: () => Promise<CatalogSnapshot>
+  /** Install or refresh one catalog skill. */
+  readonly install: (name: string) => Promise<void>
 }
 
 /** Full component props: runtime share, locale seat, and the injected face. */
@@ -31,7 +36,7 @@ const NAME = /^[a-z][a-z0-9-]{1,39}$/u
  * @param props - composed slot props and the Remote-backed actions.
  * @returns the tab element tree.
  */
-export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, remove }: SkillsSettingsTabProps) {
+export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, remove, loadCatalog, install }: SkillsSettingsTabProps) {
   const [skills, setSkills] = useState<readonly SkillAdminEntry[] | undefined>(undefined)
   const [autoAttach, setAutoAttachState] = useState(false)
   const [name, setName] = useState('')
@@ -124,6 +129,7 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
         </div>
         <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
       </div>
+      <SkillCatalogSection loadCatalog={loadCatalog} install={install} t={t} />
       {skills === undefined
         ? <p className={css.empty}>{t('adding')}</p>
         : skills.length === 0

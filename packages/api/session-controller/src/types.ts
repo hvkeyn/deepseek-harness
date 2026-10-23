@@ -325,6 +325,44 @@ export interface SkillRemoveRequest {
   readonly name: string
 }
 
+/** One skill published in the remote catalog. */
+export interface SkillCatalogEntry {
+  /** Kebab-case identifier used as the installed file name. */
+  readonly name: string
+  /** Catalog version of the skill. */
+  readonly version: string
+  /** Absolute download URL of the skill file. */
+  readonly url: string
+  /** SHA-256 of the skill file, lowercase hex. */
+  readonly sha256: string
+  /** Summaries by language; a missing language falls back to English. */
+  readonly description: { readonly en: string, readonly ru?: string, readonly zh?: string }
+}
+
+/** Remote catalog plus the locally installed hashes. */
+export interface SkillCatalogValue {
+  /** Where the catalog was read from. */
+  readonly source: string
+  /** Published skills, in catalog order. */
+  readonly skills: readonly SkillCatalogEntry[]
+  /** Installed skills with the hash of the file currently on disk. */
+  readonly installed: readonly { readonly name: string, readonly sha256: string }[]
+}
+
+/** Install or refresh one catalog skill. */
+export interface SkillInstallRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly name: string
+}
+
+/** Result of installing one catalog skill. */
+export interface SkillInstallValue {
+  readonly name: string
+  readonly path: string
+  readonly sha256: string
+}
+
 /** Result of a management mutation. */
 export interface SkillMutationValue {
   /** Absolute path of the file that was written or deleted. */

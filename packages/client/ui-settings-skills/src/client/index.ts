@@ -7,6 +7,7 @@ import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import { SkillsSettingsTab, type SkillsSettingsTabInjected } from './SkillsSettingsTab.tsx'
+import type { CatalogSnapshot } from './SkillCatalogSection.tsx'
 import { SkillsPanelIcon } from './SkillsPanelIcon.tsx'
 import { en, zh, type SkillsLocaleKey } from './locales.ts'
 import type { SkillAdminEntry } from './api.ts'
@@ -38,6 +39,26 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-skills: dictionaries')
   const t = ctx.locale.bind(NS)
 
+  const language = (): 'ru' | 'zh' | 'en' => {
+    const tag = (navigator.language || 'en').toLowerCase()
+    return tag.startsWith('ru') ? 'ru' : tag.startsWith('zh') ? 'zh' : 'en'
+  }
+  const loadCatalog = async (): Promise<CatalogSnapshot> => {
+    const value = await unwrap(() => ctx.remote.skills.fetchCatalog({}))
+    const current = language()
+    return {
+      installed: value.installed,
+      skills: value.skills.map(skill => ({
+        name: skill.name,
+        version: skill.version,
+        sha256: skill.sha256,
+        description: (current === 'ru' ? skill.description.ru : current === 'zh' ? skill.description.zh : undefined)
+          ?? skill.description.en,
+      })),
+    }
+  }
+  const installSkill = async (name: string): Promise<void> => { await unwrap(() => ctx.remote.skills.installSkill({ name })) }
+
   const actions: SkillsSettingsTabInjected = {
     list: async () => {
       const value = await unwrap(() => ctx.remote.skills.listAdmin({}))
@@ -47,6 +68,8 @@ export function apply(ctx: ClientContext): void {
     setEnabled: async (name, enabled) => { await unwrap(() => ctx.remote.skills.setEnabled({ name, enabled })) },
     create: async (name, content) => { await unwrap(() => ctx.remote.skills.create({ name, content })) },
     remove: async (name) => { await unwrap(() => ctx.remote.skills.removeSkill({ name })) },
+    loadCatalog,
+    install: installSkill,
   }
 
   ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({

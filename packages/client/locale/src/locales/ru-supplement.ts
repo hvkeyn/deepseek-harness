@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Russian copy this fork adds on top of the community language pack: keys the
  * pack predates. Merged over the pack dictionaries at registration, so a pack
  * update that drops a key still falls back to this file.
@@ -162,5 +162,16 @@ export const ruSupplement: Record<string, Record<string, string>> = {
     toggleFailed: 'Не удалось изменить состояние скилла.',
     removeFailed: 'Не удалось удалить скилл.',
     invalidName: 'Имя: строчные латинские буквы, цифры и дефис, начинается с буквы.',
+    'catalog.title': 'Каталог скиллов',
+    'catalog.load': 'Загрузить каталог',
+    'catalog.reload': 'Обновить список',
+    'catalog.hint': 'Каталог читается со страницы релизов; загрузите его, чтобы ставить и обновлять скиллы.',
+    'catalog.empty': 'В каталоге пока нет скиллов.',
+    'catalog.install': 'Установить',
+    'catalog.update': 'Обновить',
+    'catalog.installed': 'Установлен',
+    'catalog.notInstalled': 'Не установлен',
+    'catalog.updateAvailable': 'Есть обновление',
+    'catalog.failed': 'Не удалось прочитать каталог или установить скилл.',
   },
 }
