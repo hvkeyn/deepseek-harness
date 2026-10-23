@@ -135,7 +135,7 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
         </div>
         <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
       </div>
-      <SkillCatalogSection loadCatalog={loadCatalog} install={install} t={t} />
+      <SkillCatalogSection loadCatalog={loadCatalog} install={install} onInstalled={() => { void refresh() }} t={t} />
       {skills === undefined
         ? <p className={css.empty}>{t('adding')}</p>
         : skills.length === 0

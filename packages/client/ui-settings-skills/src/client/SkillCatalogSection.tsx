@@ -32,6 +32,8 @@ export interface SkillCatalogSectionProps {
   readonly loadCatalog: () => Promise<CatalogSnapshot>
   /** Install or refresh one skill. */
   readonly install: (name: string) => Promise<void>
+  /** Called after a successful install so the local list can refresh. */
+  readonly onInstalled?: () => void
   /** Translate one key of the `settings.skills` namespace. */
   readonly t: TranslateNS<'settings.skills'>
 }
@@ -41,7 +43,7 @@ export interface SkillCatalogSectionProps {
  * @param props - catalog actions and copy.
  * @returns the catalog section.
  */
-export function SkillCatalogSection({ loadCatalog, install, t }: SkillCatalogSectionProps) {
+export function SkillCatalogSection({ loadCatalog, install, onInstalled, t }: SkillCatalogSectionProps) {
   const [catalog, setCatalog] = useState<CatalogSnapshot | undefined>(undefined)
   const [busy, setBusy] = useState<'load' | string | undefined>(undefined)
   const [failure, setFailure] = useState('')
@@ -67,6 +69,7 @@ export function SkillCatalogSection({ loadCatalog, install, t }: SkillCatalogSec
     try {
       await install(name)
       await refresh()
+      onInstalled?.()
       setNotice(t('catalog.done').replace('{name}', name))
     } catch (error: unknown) {
       setNotice('')

@@ -1,4 +1,4 @@
-﻿/** Skills management tab registered into the Plugins settings section. */
+/** Skills management tab registered into the Plugins settings section. */
 
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
@@ -7,6 +7,7 @@ import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import { SkillsSettingsTab, type SkillsSettingsTabInjected } from './SkillsSettingsTab.tsx'
+import { SkillsPage } from './SkillsPage.tsx'
 import type { CatalogSnapshot } from './SkillCatalogSection.tsx'
 import { SkillsPanelIcon } from './SkillsPanelIcon.tsx'
 import { en, zh, type SkillsLocaleKey } from './locales.ts'
@@ -89,7 +90,7 @@ export function apply(ctx: ClientContext): void {
     key: 'skills' as MainPanelId,
     locale: NS,
     inject: (): SkillsSettingsTabInjected => actions,
-  }, SkillsSettingsTab))
+  }, SkillsPage))
   ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
     name: 'sidebar.panellist',
     id: 'skills' as MainPanelId,
