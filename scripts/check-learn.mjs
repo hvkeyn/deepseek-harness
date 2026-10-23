@@ -1,0 +1,13 @@
+import { chromium } from 'file:///C:/PROJECTS/DeepSeekHarness/node_modules/.pnpm/playwright@1.61.1/node_modules/playwright/index.mjs'
+const browser = await chromium.launch({ channel: 'msedge' })
+const page = await browser.newPage({ viewport: { width: 1280, height: 760 } })
+await page.goto(process.argv[2], { waitUntil: 'domcontentloaded' })
+await page.waitForTimeout(12000)
+await page.evaluate(() => { const p = /Skills|\u0421\u043a\u0438\u043b\u043b\u044b/; const e = Array.from(document.querySelectorAll('button, [role=button]')).find(c => p.test(c.getAttribute('aria-label') || c.textContent || '')); if (e) e.click() })
+await page.waitForTimeout(2500)
+await page.evaluate(() => { const p = /\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043a\u0430\u0442\u0430\u043b\u043e\u0433|\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c \u0441\u043f\u0438\u0441\u043e\u043a/; const e = Array.from(document.querySelectorAll('button')).find(c => p.test(c.textContent || '')); if (e) e.click() })
+await page.waitForTimeout(6000)
+const text = await page.evaluate(() => document.body.innerText)
+const at = text.indexOf('learn')
+console.log(text.slice(Math.max(0, at - 40), at + 240).replace(/\n+/g, ' | '))
+await browser.close()

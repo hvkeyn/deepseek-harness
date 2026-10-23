@@ -1,4 +1,4 @@
-﻿/** Session-addressed, cold-readable skill catalog Remote and its management surface. */
+/** Session-addressed, cold-readable skill catalog Remote and its management surface. */
 
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
@@ -77,18 +77,37 @@ export class SessionSkillCatalog extends TypertRemoteService {
   @Remote
   async listAdmin(request: SkillAdminListRequest, signal: AbortSignal): Promise<SkillAdminValue> {
     const target = await this.targetFor(request.sessionId, signal)
-    const disabled = this.readDisabled()
+    try {
+      const disabled = this.readDisabled()
     target.registry.setDisabled(disabled)
     const skills = await target.registry.list({ cwd: target.cwd, scope: target.scope, includeDisabled: true })
-    return {
-      disabled,
-      autoAttach: this.readAutoAttach(),
-      skills: skills.map(skill => ({
-        name: skill.name,
-        description: skill.description,
-        ...skill.path === undefined ? {} : { path: skill.path },
-        enabled: !disabled.includes(skill.name),
-      })),
+      // Files in the user root are listed even when no provider in this
+      // composition scans it: the panel must show what it can install.
+      const listed = new Map<string, { name: string, description: string, path?: string }>()
+      for (const skill of skills) {
+        listed.set(skill.name, {
+          name: skill.name,
+          description: skill.description,
+          ...skill.path === undefined ? {} : { path: skill.path },
+        })
+      }
+      for (const file of this.installedSkills()) {
+        if (listed.has(file.name)) continue
+        listed.set(file.name, {
+          name: file.name,
+          description: skillSummary(readFileSync(this.userSkillPath(file.name), 'utf8')),
+          path: this.userSkillPath(file.name),
+        })
+      }
+      return {
+        disabled,
+        autoAttach: this.readAutoAttach(),
+        skills: [...listed.values()]
+          .sort((left, right) => left.name.localeCompare(right.name))
+          .map(skill => ({ ...skill, enabled: !disabled.includes(skill.name) })),
+      }
+    } finally {
+      await target.release?.()
     }
   }
 
@@ -173,7 +192,8 @@ export class SessionSkillCatalog extends TypertRemoteService {
     const target = await this.targetFor(request.sessionId, signal)
     const skills = await target.registry.list({ cwd: target.cwd, scope: target.scope, includeDisabled: true })
     const match = skills.find(skill => skill.name === request.name)
-    const path = match?.path
+    const userPath = this.userSkillPath(request.name)
+    const path = match?.path ?? (existsSync(userPath) ? userPath : undefined)
     if (path === undefined) {
       throw new RemoteError('gateway/bad-request', `skill "${request.name}" has no file to remove`, {})
     }
@@ -324,13 +344,22 @@ export class SessionSkillCatalog extends TypertRemoteService {
    */
   private async targetFor(
     sessionId: SessionId | undefined, signal: AbortSignal,
-  ): Promise<{ registry: SkillRegistry, cwd: string, scope: ScopeKey | undefined }> {
+  ): Promise<{ registry: SkillRegistry, cwd: string, scope: ScopeKey | undefined, release?: () => Promise<void> }> {
     if (sessionId === undefined) {
       const registry = this.ctx.get('skills')
       if (registry === undefined) {
         throw new RemoteError('gateway/internal', 'skill registry is absent from the host composition', {})
       }
-      return { registry, cwd: this.ctx.workingDirectory.defaultDirectory, scope: undefined }
+      // Presets own local discovery: the host layer alone lists bundled skills
+      // only, so a management read without a Session resolves the standing
+      // default preset and merges its layer.
+      const lease = await this.scopeFor(undefined)
+      return {
+        registry,
+        cwd: this.ctx.workingDirectory.defaultDirectory,
+        scope: lease?.key,
+        ...lease === undefined ? {} : { release: async () => { await lease[Symbol.asyncDispose]() } },
+      }
     }
     let cwd: string
     let agentPreset: string | undefined
@@ -386,6 +415,18 @@ export class SessionSkillCatalog extends TypertRemoteService {
       return undefined
     }
   }
+}
+
+/**
+ * Read a one-line summary from a skill file: its "Use this" line, else the first
+ * non-empty line, capped for the list row.
+ * @param text - Markdown body of the skill.
+ * @returns the summary line.
+ */
+function skillSummary(text: string): string {
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '')
+  const summary = lines.find(line => line.startsWith('Use this')) ?? lines[0] ?? ''
+  return summary.length <= 240 ? summary : `${summary.slice(0, 237)}...`
 }
 
 /** Where a deployment reads its skill catalog from. */
