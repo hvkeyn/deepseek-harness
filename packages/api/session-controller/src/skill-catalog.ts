@@ -164,7 +164,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
    * @throws RemoteError when the skill is unknown or lives outside the user root.
    */
   @Remote
-  async remove(request: SkillRemoveRequest, signal: AbortSignal): Promise<SkillMutationValue> {
+  async removeSkill(request: SkillRemoveRequest, signal: AbortSignal): Promise<SkillMutationValue> {
     if (!SKILL_NAME.test(request.name)) {
       throw new RemoteError('gateway/bad-request', `invalid skill name "${request.name}"`, {})
     }

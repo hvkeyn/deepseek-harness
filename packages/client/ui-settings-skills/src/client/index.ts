@@ -1,4 +1,4 @@
-/** Skills management tab registered into the Plugins settings section. */
+﻿/** Skills management tab registered into the Plugins settings section. */
 
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
@@ -43,7 +43,7 @@ export function apply(ctx: ClientContext): void {
     setAutoAttach: async (enabled) => { await unwrap(() => ctx.remote.skills.setAutoAttach({ enabled })) },
     setEnabled: async (name, enabled) => { await unwrap(() => ctx.remote.skills.setEnabled({ name, enabled })) },
     create: async (name, content) => { await unwrap(() => ctx.remote.skills.create({ name, content })) },
-    remove: async (name) => { await unwrap(() => ctx.remote.skills.remove({ name })) },
+    remove: async (name) => { await unwrap(() => ctx.remote.skills.removeSkill({ name })) },
   }
 
   ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
