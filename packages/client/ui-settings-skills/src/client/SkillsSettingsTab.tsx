@@ -135,7 +135,10 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
         </div>
         <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
       </div>
-      <SkillCatalogSection loadCatalog={loadCatalog} install={install} onInstalled={() => { void refresh() }} t={t} />
+      <h3 className={css.formTitle}>
+        {t('connected.title')}
+        {skills === undefined ? null : ` · ${t('connected.count').replace('{on}', String(skills.filter(skill => skill.enabled).length)).replace('{total}', String(skills.length))}`}
+      </h3>
       {skills === undefined
         ? <p className={css.empty}>{t('adding')}</p>
         : skills.length === 0
@@ -167,6 +170,7 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
           {busy ? t('adding') : t('add')}
         </button>
       </form>
+      <SkillCatalogSection loadCatalog={loadCatalog} install={install} onInstalled={() => { void refresh() }} t={t} />
     </section>
   )
 }

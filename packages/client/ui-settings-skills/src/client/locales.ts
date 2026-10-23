@@ -37,6 +37,8 @@ export const zh = {
   'status.enabled': '{name} 已启用',
   'status.disabled': '{name} 已停用',
   'status.removed': '{name} 已删除',
+  'connected.title': '已附加技能',
+  'connected.count': '已启用 {on} / {total}',
 } satisfies Record<string, string>
 
 /** The `settings.skills` namespace key union. */
@@ -79,4 +81,6 @@ export const en = {
   'status.enabled': '{name} enabled',
   'status.disabled': '{name} disabled',
   'status.removed': '{name} removed',
+  'connected.title': 'Connected skills',
+  'connected.count': 'enabled {on} / {total}',
 } satisfies Record<SkillsLocaleKey, string>

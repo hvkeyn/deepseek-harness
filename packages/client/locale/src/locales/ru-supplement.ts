@@ -179,5 +179,7 @@ export const ruSupplement: Record<string, Record<string, string>> = {
     'status.enabled': '{name} включён',
     'status.disabled': '{name} выключен',
     'status.removed': '{name} удалён',
+    'connected.title': 'Подключённые скиллы',
+    'connected.count': 'включено {on} из {total}',
   },
 }
