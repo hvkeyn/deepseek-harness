@@ -1,44 +1,59 @@
-// Composer dock reading of the skills the session carries automatically. The
-// block is silent unless Auto-attach skills is on and at least one skill is
-// enabled, so the dock never competes with the composer for empty state.
+// Composer dock listing the skills this Session actually applied — from a /name
+// gesture or automatic attachment. Each skill is a coloured chip so the applied
+// set reads at a glance; a long set collapses into a +N chip.
 
 import { useEffect, useState } from 'react'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import css from './AttachedSkills.module.css'
 
-/** Business face: the enabled skill names behind automatic attachment. */
+/** Business face: the applied skill names of the current Session. */
 export interface AttachedSkillsInjected {
-  /** Read the automatic-attachment state and the enabled skill names. */
-  readonly load: () => Promise<{ autoAttach: boolean, names: readonly string[] }>
+  /** Read the skills applied so far. */
+  readonly load: () => Promise<{ names: readonly string[] }>
 }
 
 /** Full component props: locale seat plus the injected loader. */
 export type AttachedSkillsProps = PropsLocale<'skill'> & AttachedSkillsInjected
 
+/** Refetch cadence while the composer is mounted, in milliseconds. */
+const REFRESH_MS = 2_500
+
+/** How many chips fit before the rest collapse into a counter. */
+const VISIBLE_CHIPS = 5
+
 /**
- * Render the attached-skill names above the composer.
+ * Render the applied-skill chips.
  * @param props - locale copy and the loader.
- * @returns the chip row, or null when attachment is off or empty.
+ * @returns the chip row, or null when nothing was applied.
  */
 export function AttachedSkills({ t, load }: AttachedSkillsProps) {
-  const [state, setState] = useState<{ autoAttach: boolean, names: readonly string[] }>({ autoAttach: false, names: [] })
+  const [names, setNames] = useState<readonly string[]>([])
 
   useEffect(() => {
     let active = true
-    void load()
-      .then((value) => { if (active) setState(value) })
-      .catch(() => {
-        // The dock is informational; a failed read leaves it hidden.
-        if (active) setState({ autoAttach: false, names: [] })
-      })
-    return () => { active = false }
+    const read = async (): Promise<void> => {
+      try {
+        const value = await load()
+        if (active) setNames(value.names)
+      } catch {
+        // The dock is informational: a failed read keeps the last list.
+      }
+    }
+    void read()
+    const timer = setInterval(() => { void read() }, REFRESH_MS)
+    return () => { active = false; clearInterval(timer) }
   }, [load])
 
-  if (!state.autoAttach || state.names.length === 0) return null
+  if (names.length === 0) return null
+  const visible = names.slice(0, VISIBLE_CHIPS)
+  const hidden = names.length - visible.length
   return (
-    <div className={css.dock} title={t('attached.title')}>
-      <span className={css.label}>{t('attached.title')}</span>
-      <span className={css.names}>{state.names.join(' · ')}</span>
+    <div className={css.dock} title={`${t('active.title')}: ${names.join(', ')}`}>
+      <span className={css.label}>{t('active.title')}</span>
+      {visible.map((name, index) => (
+        <span key={name} className={`${css.chip} ${index % 5 === 0 ? css.c0 : index % 5 === 1 ? css.c1 : index % 5 === 2 ? css.c2 : index % 5 === 3 ? css.c3 : css.c4}`}>{name}</span>
+      ))}
+      {hidden <= 0 ? null : <span className={css.chipMore}>{t('active.more').replace('{count}', String(hidden))}</span>}
     </div>
   )
 }

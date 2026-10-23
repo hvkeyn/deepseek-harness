@@ -142,6 +142,8 @@ export const ruSupplement: Record<string, Record<string, string>> = {
   },
   skill: {
     'attached.title': 'Подключённые скиллы',
+    'active.title': 'Применены',
+    'active.more': '+{count}',
   },
   'settings.skills': {
     tab: 'Скиллы',

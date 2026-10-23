@@ -6,6 +6,7 @@ import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import type { SkillRegistry } from '@deepseek-ai/dsh-skill'
 import { isUserInvocable } from '@deepseek-ai/dsh-skill'
 import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
+import { SessionSeq } from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-working-directory'
 import type { ScopeKey } from '@deepseek-ai/dsh-scope'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
@@ -205,6 +206,31 @@ export class SessionSkillCatalog extends TypertRemoteService {
     const disabled = this.readDisabled().filter(name => name !== request.name)
     this.writeSettings(target.registry, { disabled })
     return { path, disabled }
+  }
+
+  /**
+   * List the skills this Session actually applied: names carried by a
+   * `skill-invocation` context, from a `/name` gesture or automatic attachment.
+   * @param request - Session whose log is read.
+   * @param signal - caller lifetime carried by the Remote transport.
+   * @returns applied skill names in first-use order.
+   */
+  @Remote
+  async activeSkills(request: SkillListRequest, signal: AbortSignal): Promise<{ names: readonly string[] }> {
+    const live = this.ctx.agents.get(request.sessionId)
+    if (live === undefined) return { names: [] }
+    const names: string[] = []
+    const seen = new Set<string>()
+    for (let index = 0; index < live.session.seq; index += 1) {
+      if (signal.aborted) break
+      const event = live.session.eventAt(SessionSeq(index))
+      if (event?.type !== 'user/message') continue
+      const source = event.data.source
+      if (source.kind !== 'skill-invocation' || seen.has(source.name)) continue
+      seen.add(source.name)
+      names.push(source.name)
+    }
+    return { names }
   }
 
   /**

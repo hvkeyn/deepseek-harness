@@ -151,7 +151,8 @@ describe('apply', () => {
           'row.instructions': '说明',
           'row.inspect': '查看',
           'menu.userOnly': '仅用户',
-          'attached.title': '已附加技能',
+          'active.title': '已应用',
+          'active.more': '+{count}',
         },
         en: {
           'row.title': 'Skill',
@@ -162,7 +163,8 @@ describe('apply', () => {
           'row.instructions': 'Instructions',
           'row.inspect': 'Inspect',
           'menu.userOnly': 'user-only',
-          'attached.title': 'Attached skills',
+          'active.title': 'Applied',
+          'active.more': '+{count}',
         },
       },
     }])

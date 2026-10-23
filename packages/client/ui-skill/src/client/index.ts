@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Skill reference plugin, browser half: registers the '/' skill source —
  * candidates from the `skills/list` Remote addressed by the per-call session
  * projection's sessionId (sessions are always agent-backed; the host
@@ -95,22 +95,20 @@ export function apply(ctx: ClientContext): void {
   const skills = ctx.remote.skills
   const sessions = ctx.sessions
 
-  // Automatic attachment is a global preference, so the dock reads it without a
-  // Session identity: the names it shows are exactly what the host injects.
-  const attachedLoad = async (): Promise<{ autoAttach: boolean, names: readonly string[] }> => {
-    const result = await skills.listAdmin({})
-    if (!result.ok) throw new Error(`skills/listAdmin failed: ${result.error.code}: ${result.error.message}`)
-    return {
-      autoAttach: result.value.autoAttach,
-      names: result.value.skills.filter(skill => skill.enabled).map(skill => skill.name),
-    }
+  // The dock reports what the Session actually applied, not what is merely
+  // installed: a skill appears here after a `/name` gesture or automatic
+  // attachment wrote its instructions into the log.
+  const activeLoad = (sessionId: SessionId) => async (): Promise<{ names: readonly string[] }> => {
+    const result = await skills.activeSkills({ sessionId })
+    if (!result.ok) throw new Error(`skills/activeSkills failed: ${result.error.code}: ${result.error.message}`)
+    return { names: result.value.names }
   }
   ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
     name: 'conversation.composer.dock',
     id: 'attached-skills',
     order: 5,
     locale: NS,
-    inject: () => ({ load: attachedLoad }),
+    inject: (sessionId: SessionId) => ({ load: activeLoad(sessionId) }),
   }, AttachedSkills))
   // Session-keyed catalog cache; single-flight per key. Plugin-closure state:
   // the fiber effect below is its teardown boundary.

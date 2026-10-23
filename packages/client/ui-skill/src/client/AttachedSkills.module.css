@@ -1,9 +1,10 @@
-/* Attached-skill row: reads like composer chrome, tokens only. */
+/* Applied-skill chips: compact pills, one hue per position, tokens for chrome. */
 
 .dock {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
   min-width: 0;
   padding: 2px 2px 0;
   font-size: 11px;
@@ -13,12 +14,59 @@
 
 .label {
   flex: none;
+  margin-right: 2px;
   letter-spacing: 0.02em;
 }
 
-.names {
+.chip,
+.chipMore {
+  display: inline-flex;
+  align-items: center;
+  max-width: 132px;
   overflow: hidden;
+  padding: 1px 7px;
+  border-radius: 999px;
   font-family: var(--ds-font-family-code, monospace);
+  font-size: 11px;
+  line-height: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* Data-visualisation palette: five hues distinguish chips at a glance. */
+.c0 {
+  background: hsl(214 90% 94%);
+  border-color: hsl(214 70% 84%);
+  color: hsl(214 70% 30%);
+}
+
+.c1 {
+  background: hsl(152 55% 92%);
+  border-color: hsl(152 45% 80%);
+  color: hsl(152 55% 26%);
+}
+
+.c2 {
+  background: hsl(40 95% 92%);
+  border-color: hsl(40 75% 78%);
+  color: hsl(35 75% 28%);
+}
+
+.c3 {
+  background: hsl(280 55% 95%);
+  border-color: hsl(280 40% 84%);
+  color: hsl(280 45% 34%);
+}
+
+.c4 {
+  background: hsl(355 80% 95%);
+  border-color: hsl(355 60% 84%);
+  color: hsl(355 60% 34%);
+}
+
+.chipMore {
+  background: var(--dsw-alias-bg-layer-2);
+  border-color: var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-secondary);
 }
