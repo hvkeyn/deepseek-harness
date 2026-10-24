@@ -32,6 +32,8 @@ export const zh = {
   'expand': '展开',
   'back': '返回',
   'brand.localBuild': 'DSH 本地构建',
+  'brand.hvkeynEdition': 'HVKeyn Edition',
+  'brand.hvkeynEditionCompact': 'HVKeyn',
   'workspace.defaultName': '默认工作区',
   'unknown': '未知',
   'none': '无',

@@ -76,15 +76,24 @@ if errorlevel 1 exit /b 1
 goto after_build
 
 :official_build
+rem The official client profile embeds the source commit and the product version,
+rem which are also what mark the artifacts as this fork's edition.
+if not defined DSH_CLIENT_COMMIT_HASH (
+  for /f "delims=" %%h in ('git rev-parse --short HEAD 2^>nul') do set "DSH_CLIENT_COMMIT_HASH=%%h"
+)
+if not defined DSH_CLIENT_COMMIT_HASH goto missing_commit
+set "DSH_CLIENT_VERSION=!VERSION!"
 echo ^>^> %PNPM% run build:official
 call !PNPM! run build:official
 if errorlevel 1 exit /b 1
 
 :after_build
 if not "%DO_PACK%"=="1" goto after_pack
-echo ^>^> %PNPM% run release:pack --family dsh
+rem The pack fans out over the workspace: the publish-order file keeps the family order.
+if not defined DSH_PACK_CONCURRENCY set "DSH_PACK_CONCURRENCY=4"
+echo ^>^> %PNPM% run release:pack --family dsh --concurrency !DSH_PACK_CONCURRENCY!
 if not exist "dist\packed" mkdir "dist\packed"
-call !PNPM! run release:pack --family dsh --out "dist\packed"
+call !PNPM! run release:pack --family dsh --out "dist\packed" --concurrency !DSH_PACK_CONCURRENCY!
 if errorlevel 1 exit /b 1
 
 :after_pack
@@ -120,6 +129,11 @@ exit /b 1
 
 :no_pnpm
 echo build.bat: pnpm is required. Run "corepack enable" with Node.js 22 or newer installed. 1>&2
+exit /b 1
+
+:missing_commit
+echo build.bat: --pack needs a Git checkout; the official client profile embeds the source commit. 1>&2
+echo           Run it from the repository, or set DSH_CLIENT_COMMIT_HASH to the packed commit. 1>&2
 exit /b 1
 
 :missing_desktop_env

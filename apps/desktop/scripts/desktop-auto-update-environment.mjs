@@ -5,6 +5,9 @@ import { valid } from 'semver'
 /** Environment variable that selects the Desktop update deployment. */
 export const DESKTOP_AUTO_UPDATE_ENV = 'DSH_DESKTOP_AUTO_UPDATE_ENV'
 
+/** Environment variable that replaces the packaged feed location with another HTTPS host. */
+export const DESKTOP_UPDATE_FEED_URL_ENV = 'DSH_DESKTOP_UPDATE_FEED_URL'
+
 /**
  * Resolve the channel embedded in the installer; omitted local settings retain nightly.
  * @param {NodeJS.ProcessEnv} env Packaging or upload settings.
@@ -133,6 +136,30 @@ function httpsOrigin(value, name) {
 }
 
 /**
+ * Normalize a full HTTPS feed location, which may carry a path that serves channel metadata.
+ * @param {string} value - Candidate feed URL.
+ * @param {string} name - Environment variable used in diagnostics.
+ * @returns {string} Normalized HTTPS location ending in one slash.
+ */
+function httpsFeedUrl(value, name) {
+  let parsed
+  try {
+    parsed = new URL(value)
+  }
+  catch {
+    throw new Error(`desktop auto-update: ${name} must be an absolute HTTPS URL`)
+  }
+  if (parsed.protocol !== 'https:'
+    || parsed.username !== ''
+    || parsed.password !== ''
+    || parsed.search !== ''
+    || parsed.hash !== '') {
+    throw new Error(`desktop auto-update: ${name} must be an absolute HTTPS URL without credentials, query, or fragment`)
+  }
+  return `${parsed.origin}${parsed.pathname.replace(/\/?$/u, '/')}`
+}
+
+/**
  * Resolve the public updater URL and object prefixes for one release target.
  * @param {NodeJS.ProcessEnv} env - Packaging or upload environment.
  * @param {NodeJS.Platform} platform - Target Node.js platform.
@@ -160,6 +187,9 @@ export function resolveDesktopAutoUpdateConfig(env, platform, arch) {
     releasePrefix += `/${releaseId}`
   }
   const keyPrefix = `${releasePrefix}/feeds/${target}`
+  // A fork can host its own feed anywhere on HTTPS; the deployment origin still names the upload
+  // destination, so only the packaged public URL changes.
+  const explicitFeed = env[DESKTOP_UPDATE_FEED_URL_ENV]?.trim()
   return {
     environment,
     channel,
@@ -167,7 +197,9 @@ export function resolveDesktopAutoUpdateConfig(env, platform, arch) {
     origin,
     keyPrefix,
     binaryKeyPrefix: `${releasePrefix}/bin/${target}${channel === 'latest' ? '/latest' : ''}`,
-    publicUrl: `${origin}/${keyPrefix}/`,
+    publicUrl: explicitFeed === undefined || explicitFeed === ''
+      ? `${origin}/${keyPrefix}/`
+      : httpsFeedUrl(explicitFeed, DESKTOP_UPDATE_FEED_URL_ENV),
   }
 }
 

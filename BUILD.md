@@ -4,6 +4,8 @@ This repository is a checkout of [deepseek-harness](https://github.com/deepseek-
 
 The canonical upstream documentation remains authoritative: see `docs/development.md` for the contributor setup, [`apps/desktop/packaging/README.md`](apps/desktop/packaging/README.md) for Desktop packaging, [`apps/desktop/windows-signing/README.md`](apps/desktop/windows-signing/README.md) for signing, and [`apps/desktop/publishing/README.md`](apps/desktop/publishing/README.md) for publication.
 
+The official client build marks the sidebar name with an `HVKeyn Edition` badge. The Desktop welcome window shows the same marker beside its wordmark, and every Windows installer page carries it: `apps/desktop/scripts/installer-brand-badge.ps1` paints the pill into the installer artwork while the native resources are prepared, on the wordmark line and under the uninstaller's card. `--pack` and the Desktop packaging build that official profile, and `--pack` supplies the source commit and product version it embeds. A plain `pnpm run build` remains a local build: it keeps the shell's local-build label and shows no badge.
+
 ## Prerequisites
 
 | Need | Linux | Windows |
@@ -32,6 +34,104 @@ Options: `--desktop` also produces an unsigned Desktop installer through `pnpm r
 Run `build.bat --desktop` on a Windows x64 host. Packaging needs network access to npm, GitHub release assets, and nodejs.org; stage logs stay under `apps\desktop\.desktop-build\packaging-runs\`. Add `--check` to `pnpm run package:desktop:win:x64:unsigned` to validate configuration and tooling without building.
 
 Upstream also supports a machine-preset mode for CI-style runs: `DSH_PACKAGING_CONFIG_DIR` names an absolute directory holding `presets/<test|production>.env` and `secrets/windows-signing.env`, and `DSH_PACKAGING_PRESET` selects the preset. A missing preset file fails instead of falling back to `.env.windows`; unsigned and preparation-only runs never read the signing file. `build.bat` uses the dotenv path and needs no preset.
+
+### Windows version and signature
+
+The Desktop application runs on Windows 10 and newer. It ships Electron 44 (Chromium 140), while Electron 22 was the last major that supported Windows 7, 8, and 8.1 ([deprecation notice](https://www.electronjs.org/blog/windows-7-to-8-1-deprecation-notice)); the bundled runtime also needs Node 22 or newer, which does not run on those systems. A Windows 7 build would require an Electron ≤22 fork of the whole application, so these scripts do not produce one.
+
+The installer is built unsigned because Windows trusts a signature only from a certificate a public CA issued after an identity check; upstream's release pipeline holds that as an EV token, and a local checkout cannot create it. `packaging/sign-windows-selfsigned.ps1` instead generates a self-signed code-signing certificate, signs the installer, and exports the public certificate:
+
+```
+powershell -ExecutionPolicy Bypass -File packaging\sign-windows-selfsigned.ps1 -File dist\win\deepseek-harness-<version>-win-x64.exe
+```
+
+That signature covers the file's bytes, but Windows reports "Unknown publisher" until the exported `.cer` is installed under Trusted Root Certification Authorities on the machine that should accept it. Signing after packaging also invalidates the electron-builder blockmap, so regenerate it before an artifact feeds an update channel.
+
+### Updates from this fork's releases
+
+An unsigned build ships no update feed unless the deployment names one, because there is no signing identity to check a downloaded installer against. `DSH_DESKTOP_UPDATE_FEED_URL` supplies one: it takes an absolute HTTPS location, replaces the packaged feed URL, and is written into `resources/app-update.yml` together with the channel. This fork points it at its own releases:
+
+```
+DSH_DESKTOP_UPDATE_FEED_URL=https://github.com/hvkeyn/deepseek-harness/releases/latest/download/
+```
+
+A build made with that setting emits `nightly.yml` (the `nightly` channel is the only one an `-rc` version may use) and a `.exe.blockmap` beside the installer. Publish both with the installer itself: `nightly.yml` records the installer's size and SHA-512, so the yml and the executable must come from the same build. The installed application then reads `<feed>/nightly.yml`, compares versions, and downloads the next release when one appears; without the yml it reports that the application has no packaged update source.
+
+#### Cutting a release that installed copies can update to
+
+The updater compares semantic versions, so a rebuild of the same version never reaches anyone: raise the version first. The repository owns one family version for all 343 packages, and the bump tool rewrites and commits it together:
+
+```
+pnpm run release:dsh 0.2.2          # patch | minor | major | x.y.z
+pnpm exec tsx scripts/release/verify.ts --family dsh
+```
+
+Then build, sign, and publish under a tag named after the version:
+
+```
+build.bat --desktop                              # produces dist\win\deepseek-harness-0.2.2-win-x64-unsigned.exe
+new-item -itemtype directory dist\release-0.2.2
+copy dist\win\deepseek-harness-0.2.2-win-x64-unsigned.exe dist\release-0.2.2\
+powershell packaging\sign-windows-selfsigned.ps1 -File dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.exe -CertificateOut dist\release-0.2.2\deepseek-harness-0.2.2-win-x64-hvkeyn-signed.cer
+```
+
+Copy `nightly.yml` and the `.exe.blockmap` from `apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/`, then rewrite the feed's relative URLs into absolute ones for this tag before uploading:
+
+```
+powershell packaging\absolutize-feed.ps1 -Feed dist\release-0.2.4\nightly.yml -Tag binaries-0.2.4
+```
+
+electron-updater resolves a relative `files[].url` against the feed URL it was served from, and `releases/latest/download/` is a moving redirect: a client that read one release's feed and starts downloading after `latest` moved asks the new tag for the old file name and fails with 404. Absolute URLs pin every feed to its own release, which stays downloadable. Write `SHA256SUMS.txt` over the release directory, then create the release and upload every file from it:
+
+```
+gh release create binaries-0.2.4 -R hvkeyn/deepseek-harness --title "HVKeyn Edition 0.2.4" --notes-file notes.md dist\release-0.2.4\*
+```
+
+When an older release's feed is still relative, republish that asset with the same script and `gh release upload --clobber` so clients holding its metadata get pinned URLs too.
+
+##### One release for every OS
+
+A release carries both platforms. Build Windows with `build.bat --desktop`, then the Linux AppImage inside WSL (sync the tree to the release commit first, because the AppImage embeds it):
+
+```
+wsl -e bash /mnt/c/PROJECTS/dsh-sync-wsl.sh
+wsl -e bash -lc 'COMMIT_HASH=<short sha> bash /mnt/c/PROJECTS/dsh-linux-build.sh'
+```
+
+The WSL script writes `deepseek-harness-<version>-linux-x86_64.AppImage` and the packed tarballs into `C:\PROJECTS\DeepSeekHarness-dist-linux`. Rebuild the skills index with `-Tag binaries-<version>` so the catalog URLs point at the new tag, then stage and upload everything in one pass:
+
+```
+powershell packaging\publish-release.ps1 -Version <version>
+```
+
+The script collects the Windows installer with its blockmap, the Linux AppImage, the npm tarballs, the skills package, absolutizes `nightly.yml`, writes `SHA256SUMS.txt`, and uploads with `--clobber`; add `-CreateRelease` the first time instead. Verify the feed afterwards: `releases/latest/download/nightly.yml` must report the version and its installer URL must answer `200`.
+
+##### Skills package
+
+The example skills ship as their own download beside the installer, so a user can install them without copying files one by one:
+
+```
+powershell packaging\make-skills-package.ps1 -Version 1.0.0
+gh release upload binaries-0.2.2 -R hvkeyn/deepseek-harness dist\skills\hvkeyn-skills-1.0.0.zip dist\skills\hvkeyn-skills-1.0.0.tar.gz
+```
+
+Attach it to the **same** release as `nightly.yml`: `releases/latest/download/nightly.yml` resolves through the newest normal release, so a separate skills-only release would take the "latest" slot and break the update check. The package holds the `.md` files from `.dsh/skills`, a `manifest.json` listing each skill's name and summary, and an install note pointing at `%USERPROFILE%\.dsh\skills` (all projects) or `<project>\.dsh\skills` (one project).
+
+Keep the release a normal (not prerelease) release: `releases/latest/download/nightly.yml` only resolves through the newest normal release, and that URL is what installed builds poll. An installed copy of an older version then offers the update by itself.
+
+### Windows 7 clients
+
+A Windows 7 machine cannot run the Desktop application, but it can drive a harness that runs elsewhere: the Web UI is the whole product, and every tool, terminal, and file operation executes on the Host. Run the Host on a supported machine and open its address from the Windows 7 client:
+
+```
+dsh web --host 192.168.1.20 --port 7766 --public-url http://192.168.1.20:7766 --trusted-host 192.168.1.20:7766
+```
+
+`--host` takes one concrete address of a local interface (wildcards are rejected), and the command prints the URL carrying the session token; open it on the client. For a shared network, add `--tls-cert`/`--tls-key` and an `https://` `--public-url`.
+
+The browser must satisfy the client's ES2022 build target plus the ES2023/ES2024 built-ins the bundles call. `apps/web/src/compat.ts` installs the missing ones (`Promise.withResolvers`, `Array.prototype.toSorted` and `toReversed`, `URL.canParse`) before any client module evaluates, which leaves the final browsers that still run on Windows 7 usable: Chrome or Edge 109, and Firefox 115 ESR. Firefox ESR keeps receiving security fixes; Chrome 109 does not. Treat the client machine as untrusted and keep the Host on a network you control.
+
+Styling is the remaining gap, and it is cosmetic rather than structural: the built stylesheet uses `:has()` fifteen times and `color-mix()` ten times. Firefox 115 supports `color-mix()` but not `:has()`, and Chrome 109 supports `:has()` but not `color-mix()`, so conditional states or computed colors degrade. Closing that gap means replacing those selectors and color expressions with older equivalents, which this fork has not done yet.
 
 ## Linux and Debian
 
@@ -68,6 +168,18 @@ On Ubuntu 24.04 and later the ATK, CUPS, GTK, AT-SPI and ALSA packages carry the
 Linux packages `asar` disabled so the runtime is a plain directory (`resources/app`). Electron's ASAR file system reports the missing `@deepseek-ai/libreoffice-kit-linux-x64-glibc` engine as present, which makes the Office kit throw instead of falling back to its bundled WASM engine; unpacked files avoid that false positive and let DOCX, XLSX and PPTX conversion run.
 
 `apps/desktop/.env.linux` owns release settings for the target (never the shell); `DSH_DESKTOP_APP_ID` is required and the npm registry may be overridden. Linux carries no mandatory-update policy, so no update origin is configured and the packaged shell does not restrict its platform at startup. Packaging writes no release completion record, `--build-version auto` is rejected, and the upload commands cannot publish a Linux artifact.
+
+## Build time
+
+The release pack is the longest single step: it turns every workspace package into a tarball. `build.sh` and `build.bat` now pass `--concurrency 4` (override with `DSH_PACK_CONCURRENCY`), and the Desktop packaging packs the runtime it bundles concurrently as well (`DSH_DESKTOP_WINDOWS_PACK_CONCURRENCY`, default 4; macOS keeps `DSH_DESKTOP_MACOS_PACK_CONCURRENCY`). On the workstation this fork was built on, the 343-package pack dropped from 683 s to 91 s with byte-identical tarball contents, and the publish-order file keeps the family order, so only wall-clock time changes.
+
+For iteration, `pnpm run build:artifacts` skips the aggregate checks, a packaging run records every stage under `apps/desktop/.desktop-build/packaging-runs/`, and `pnpm run package:desktop:win:x64:dir` stops after the unpacked application instead of building the installer.
+
+Two more levers are built in. `build.sh --desktop` and `build.bat --desktop` alone skip the publishable tarball set, so an installer-only rebuild does not pay for it. The Desktop runtime installs its pinned package set with `--prefer-offline`, and the Debian CI job caches the pnpm store, so a repeat build resolves from disk instead of re-downloading hundreds of packages; a cold runtime install was measured at 452 s against 113 s warm.
+
+The runtime preparation keeps pnpm's store and registry-metadata cache under the target's build root (`apps/desktop/.desktop-build/targets/<target>/pnpm-store` and `pnpm-cache`) instead of a temporary directory that each run discarded. The installed tree stays disposable, so only fetched inputs are reused: `pnpm run clean` removes both along with the rest of `.desktop-build`. Measured on the same machine, `prepare:dsh` went from 499 s on an empty cache to 282 s on a repeat run, with `runtime:lockfile` dropping from 234 s to 95 s and `runtime:install` from 94 s to 22 s.
+
+The descriptor that seals the runtime is hashed concurrently since this fork added `writeDesktopRuntimeAsync` for the production path, which cut that stage from about 140 s to the cost of eight parallel readers.
 
 ## Universal Debian build (old glibc)
 
@@ -126,6 +238,18 @@ pnpm run clean
 ```
 
 `pnpm run clean` is required, not optional: a package that upstream deleted keeps its ignored `lib/` output in the checkout, and a bundle step that still resolves that residue fails with a missing-export error against the new source. Resolve the conflicts `git apply --3way` reports, rebuild, then publish the new state as the next single commit (`git checkout --orphan`, `git add -A`, `git commit`).
+
+## Harness bundles (fork-local)
+
+A harness bundle is one harness stored as a directory an editor can rewrite as a unit: `harness.json`, `system-prompt.md`, `skills/<name>/SKILL.md`, `subagents/<name>.md`, `scripts/<name>.<ts|mjs|cjs|js|py|sh>`, and an optional `cordis.patch.yml`. The surface and its checks port the editable-harness idea of [Harness²](https://github.com/google-research/harness2) (Apache-2.0); no code is copied, and nothing here is wired into a shipped profile yet.
+
+```
+pnpm run harness:bundle validate path/to/bundle
+pnpm run harness:bundle diff path/to/old path/to/new
+pnpm run harness:bundle summary path/to/bundle
+```
+
+Validation rejects a bundle that escapes its directory, carries a credential-shaped file or `node_modules`, declares an off-surface component, or exceeds the per-file and total limits. Every problem is reported at once, with the path that raised it, so a retry loop can feed the message back verbatim. `diff` compares two bundles by content and `summary` reports the component census plus the always-on characters — the text every request pays for.
 
 ## Continuous integration
 
