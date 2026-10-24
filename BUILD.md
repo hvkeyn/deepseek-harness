@@ -89,6 +89,23 @@ gh release create binaries-0.2.4 -R hvkeyn/deepseek-harness --title "HVKeyn Edit
 
 When an older release's feed is still relative, republish that asset with the same script and `gh release upload --clobber` so clients holding its metadata get pinned URLs too.
 
+##### One release for every OS
+
+A release carries both platforms. Build Windows with `build.bat --desktop`, then the Linux AppImage inside WSL (sync the tree to the release commit first, because the AppImage embeds it):
+
+```
+wsl -e bash /mnt/c/PROJECTS/dsh-sync-wsl.sh
+wsl -e bash -lc 'COMMIT_HASH=<short sha> bash /mnt/c/PROJECTS/dsh-linux-build.sh'
+```
+
+The WSL script writes `deepseek-harness-<version>-linux-x86_64.AppImage` and the packed tarballs into `C:\PROJECTS\DeepSeekHarness-dist-linux`. Rebuild the skills index with `-Tag binaries-<version>` so the catalog URLs point at the new tag, then stage and upload everything in one pass:
+
+```
+powershell packaging\publish-release.ps1 -Version <version>
+```
+
+The script collects the Windows installer with its blockmap, the Linux AppImage, the npm tarballs, the skills package, absolutizes `nightly.yml`, writes `SHA256SUMS.txt`, and uploads with `--clobber`; add `-CreateRelease` the first time instead. Verify the feed afterwards: `releases/latest/download/nightly.yml` must report the version and its installer URL must answer `200`.
+
 ##### Skills package
 
 The example skills ship as their own download beside the installer, so a user can install them without copying files one by one:
