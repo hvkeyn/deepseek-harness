@@ -1,3 +1,8 @@
+---
+name: debug
+description: "Use this when something fails: a command, a test, a build, or a behavior the user reports."
+---
+
 # Debug a failure
 
 Use this when something fails: a command, a test, a build, or a behavior the user reports.

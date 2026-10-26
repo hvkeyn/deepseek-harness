@@ -1,3 +1,8 @@
+---
+name: net-check
+description: "Use this when a request depends on the network: a download fails, an update does not arrive, an API call times out, or the user asks whether a host, DNS, port, or TLS endpoint is reachable."
+---
+
 # Check network reachability
 
 Use this when a request depends on the network: a download fails, an update does not arrive, an API call times out, or the user asks whether a host, DNS, port, or TLS endpoint is reachable.

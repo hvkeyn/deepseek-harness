@@ -1,3 +1,8 @@
+---
+name: review
+description: "Use this when the user asks you to confirm a change works, or before you say so yourself."
+---
+
 # Review before claiming a change works
 
 Use this when the user asks you to confirm a change works, or before you say so yourself.

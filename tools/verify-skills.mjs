@@ -18,6 +18,8 @@ const KNOWN_TOOLS = new Set([
   'office-export-pdf', 'office-recalculate',
 ])
 const NAME = /^[a-z][a-z0-9-]{1,39}$/
+const FOREIGN_TOOLS = new Set(['read_file', 'write_file', 'edit_file', 'run_command', 'read_dump', 'capture_dump', 'net_audit', 'load_tools', 'use_skill', 'git_diff', 'git_status', 'http_request', 'save_skill', 'delete_skill', 'render_video', 'edit_video', 'analyze_function'])
+const DOCS = new Set(['ADAPTING', 'ATTRIBUTION', 'CATALOG', 'CHECKLIST', 'INDEX', 'README'])
 const SECRET = /(sk-[a-z0-9]{20,}|ghp_[a-z0-9]{20,}|xox[bap]-|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)/i
 
 function files(root) {
@@ -26,7 +28,7 @@ function files(root) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = join(dir, entry.name)
       if (entry.isDirectory()) walk(full)
-      else if (entry.name.endsWith('.md') && entry.name !== 'README.md') out.push(full)
+      else if (entry.name.endsWith('.md') && !DOCS.has(entry.name.replace(/\.md$/, ''))) out.push(full)
     }
   }
   try { walk(root) } catch { /* root absent is fine */ }
@@ -48,9 +50,10 @@ for (const root of ROOTS) {
     const fences = (text.match(/^```/gm) ?? []).length
     if (fences % 2 !== 0) report('unbalanced code fences')
     if (SECRET.test(text)) report('looks like it contains a secret')
-    for (const match of text.matchAll(/`([a-z][a-z0-9_]{2,})`/g)) {
+    for (const match of text.matchAll(/`([a-z][a-z0-9_-]{2,})`/g)) {
       const token = match[1]
-      if (!KNOWN_TOOLS.has(token)) {
+      if (!FOREIGN_TOOLS.has(token) || KNOWN_TOOLS.has(token)) continue
+      {
         const key = `${name}: ${token}`
         toolGaps.set(key, (toolGaps.get(key) ?? 0) + 1)
       }

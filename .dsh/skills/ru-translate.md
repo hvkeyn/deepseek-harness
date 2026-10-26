@@ -1,3 +1,8 @@
+---
+name: ru-translate
+description: "Use this when the user wants text translated into Russian or an existing Russian text polished: documentation, an article, a game, or interface copy."
+---
+
 # Russian translation and polish
 
 Use this when the user wants text translated into Russian or an existing Russian text polished: documentation, an article, a game, or interface copy.

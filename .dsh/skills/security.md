@@ -1,3 +1,8 @@
+---
+name: security
+description: "Use this when the task touches keys, logins, accounts, or another application's data."
+---
+
 # Handle secrets and other apps safely
 
 Use this when the task touches keys, logins, accounts, or another application's data.

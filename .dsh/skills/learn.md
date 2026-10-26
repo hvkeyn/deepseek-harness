@@ -1,3 +1,8 @@
+---
+name: learn
+description: "Use this when the user wants to learn something, be taught a subject, or practise until they can explain why a step follows."
+---
+
 # Teach a subject
 
 Use this when the user wants to learn something, be taught a subject, or practise until they can explain why a step follows.

@@ -1,3 +1,8 @@
+---
+name: research
+description: "Use this when the user asks for a researched answer: comparisons, current facts, or anything that must cite where it came from."
+---
+
 # Research with sources
 
 Use this when the user asks for a researched answer: comparisons, current facts, or anything that must cite where it came from.
