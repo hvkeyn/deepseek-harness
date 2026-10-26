@@ -25,11 +25,17 @@ New-Item -ItemType Directory -Force $filesDir | Out-Null
 $translations = Get-Content $i18nPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $base = "https://github.com/$Repository/releases/download/$Tag/"
 $entries = @()
-foreach ($file in (Get-ChildItem $skillsRoot -Filter *.md -File | Sort-Object Name)) {
+$libraryRoot = Join-Path $root 'dist/skills/library'
+$skillFiles = @(Get-ChildItem $skillsRoot -Filter *.md -File)
+if (Test-Path $libraryRoot) { $skillFiles += Get-ChildItem $libraryRoot -Filter *.md -File }
+$skillFiles = $skillFiles | Sort-Object Name
+foreach ($file in $skillFiles) {
   $name = [IO.Path]::GetFileNameWithoutExtension($file.Name)
   $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower()
   $text = Get-Content $file.FullName -Raw -Encoding UTF8
-  $summary = ($text -split "`n" | Where-Object { $_ -match '^Use this ' } | Select-Object -First 1)
+  if ($text.Length -gt 12000) { Write-Warning "skipped ${name}: $($text.Length) characters exceeds the 12000 limit"; continue }
+  $summary = if ($text -match '(?m)^description:\s*"?(.+?)"?\s*$') { $Matches[1] } else { $null }
+  if (-not $summary) { $summary = ($text -split "`n" | Where-Object { $_ -match '^Use this ' } | Select-Object -First 1) }
   if (-not $summary) { $summary = ($text -split "`n" | Where-Object { $_.Trim() -ne '' } | Select-Object -First 1) }
   $localized = $translations.$name
   $entry = [ordered]@{

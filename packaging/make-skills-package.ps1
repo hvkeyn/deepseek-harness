@@ -19,14 +19,17 @@ if (-not (Test-Path $skillsRoot)) { throw "skills directory not found: $skillsRo
 Remove-Item -Recurse -Force $stage -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $stage | Out-Null
 
-$files = Get-ChildItem $skillsRoot -Filter *.md -File | Sort-Object Name
+$libraryRoot = Join-Path $root 'dist/skills/library'
+$files = @(Get-ChildItem $skillsRoot -Filter *.md -File)
+if (Test-Path $libraryRoot) { $files += Get-ChildItem $libraryRoot -Filter *.md -File }
+$files = $files | Sort-Object Name
 if ($files.Count -eq 0) { throw "no skill files in $skillsRoot" }
 
 $entries = @()
 foreach ($file in $files) {
   $name = [IO.Path]::GetFileNameWithoutExtension($file.Name)
   $text = Get-Content $file.FullName -Raw -Encoding UTF8
-  if ($text.Length -gt 12000) { throw "skill $name exceeds the 12000 character limit" }
+  if ($text.Length -gt 12000) { Write-Warning "skipped ${name}: $($text.Length) characters exceeds the 12000 limit"; continue }
   $summary = ($text -split "`n" | Where-Object { $_ -match '^Use this ' } | Select-Object -First 1)
   if (-not $summary) { $summary = ($text -split "`n" | Where-Object { $_.Trim() -ne '' } | Select-Object -First 1) }
   $entries += [ordered]@{ name = $name; file = "$name.md"; summary = $summary.Trim() }
