@@ -456,7 +456,7 @@ function skillSummary(text: string): string {
 }
 
 /** Where a deployment reads its skill catalog from. */
-const DEFAULT_SKILLS_INDEX_URL = 'https://github.com/hvkeyn/deepseek-harness/releases/latest/download/skills-index.json'
+const DEFAULT_SKILLS_INDEX_URL = 'https://github.com/hvkeyn/deepseek-harness/releases/download/skills-v1/skills-index.json'
 
 /** @returns the configured catalog index URL. */
 function skillsIndexUrl(): string {
