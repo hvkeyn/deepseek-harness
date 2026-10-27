@@ -106,6 +106,16 @@ powershell packaging\publish-release.ps1 -Version <version>
 
 The script collects the Windows installer with its blockmap, the Linux AppImage, the npm tarballs, the skills package, absolutizes `nightly.yml`, writes `SHA256SUMS.txt`, and uploads with `--clobber`; add `-CreateRelease` the first time instead. Verify the feed afterwards: `releases/latest/download/nightly.yml` must report the version and its installer URL must answer `200`.
 
+##### Skills-only release
+
+A change that touches only the catalog — `.dsh/skills`, `skills-library`, the skill tools, or the skills packaging scripts — needs no application version, no installer, and no AppImage. The catalog lives on its own `skills-v1` tag, and every installed copy reads it by default, so the whole release is one upload:
+
+```
+powershell packaging\publish-skills.ps1 -Version <n>
+```
+
+The script rebuilds the index and the archives, uploads them to the `skills-v1` prerelease with `--clobber`, and prints how many names the index serves. The tag stays a prerelease so `releases/latest` keeps resolving to the newest application release, which the update feed depends on. Do not bump `release:dsh` and do not rebuild binaries for this case.
+
 ##### Skills package
 
 The example skills ship as their own download beside the installer, so a user can install them without copying files one by one:
