@@ -1,4 +1,4 @@
-﻿// @vitest-environment jsdom
+// @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SkillsSettingsTab, type SkillsSettingsTabInjected, type SkillsSettingsTabProps } from '../src/client/SkillsSettingsTab.tsx'
@@ -22,9 +22,10 @@ function renderTab(overrides: Partial<SkillsSettingsTabInjected> = {}) {
   const setEnabled = vi.fn(async () => {})
   const create = vi.fn(async () => {})
   const remove = vi.fn(async () => {})
-  const props = { t, list, setAutoAttach, setEnabled, create, remove, loadCatalog, install, ...overrides }
+  const importSkill = vi.fn(async () => ({ imported: ['blender'], skipped: [] }))
+  const props = { t, list, setAutoAttach, setEnabled, create, remove, importSkill, loadCatalog, install, ...overrides }
   render(<SkillsSettingsTab {...props as unknown as SkillsSettingsTabProps} />)
-  return { list, setAutoAttach, setEnabled, create, remove }
+  return { list, setAutoAttach, setEnabled, create, remove, importSkill }
 }
 
 describe('SkillsSettingsTab', () => {
@@ -34,6 +35,14 @@ describe('SkillsSettingsTab', () => {
     expect(screen.getByText('learn')).toBeDefined()
     expect(screen.getByText('C:/home/.dsh/skills/review.md')).toBeDefined()
     expect(screen.getAllByRole('switch', { name: en.enabled })).toHaveLength(2)
+  })
+
+  it('imports a local file and reports the written name', async () => {
+    const { importSkill } = renderTab()
+    fireEvent.change(screen.getByPlaceholderText(en['import.placeholder']), { target: { value: 'C:/tmp/blender.md' } })
+    fireEvent.click(screen.getByRole('button', { name: en['import.action'] }))
+    await waitFor(() => { expect(screen.getByText('blender')).toBeDefined() })
+    expect(importSkill).toHaveBeenCalledWith('C:/tmp/blender.md')
   })
 
   it('turns automatic attachment on through the switch', async () => {

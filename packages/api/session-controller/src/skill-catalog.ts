@@ -10,13 +10,14 @@ import { SessionSeq } from '@deepseek-ai/dsh-session'
 import type {} from '@deepseek-ai/dsh-working-directory'
 import type { ScopeKey } from '@deepseek-ai/dsh-scope'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { join, relative, isAbsolute } from 'node:path'
+import { basename, join, relative, isAbsolute, resolve } from 'node:path'
+import { homedir } from 'node:os'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
   SkillAdminListRequest, SkillAdminValue, SkillAutoAttachRequest, SkillAutoAttachValue, SkillCatalogEntry, SkillCatalogValue, SkillCreateRequest,
-  SkillInstallRequest, SkillInstallValue, SkillListRequest, SkillListValue, SkillMutationValue,
+  SkillImportRequest, SkillImportValue, SkillInstallRequest, SkillInstallValue, SkillListRequest, SkillListValue, SkillMutationValue,
   SkillRemoveRequest, SkillToggleRequest,
 } from './types.ts'
 
@@ -287,6 +288,63 @@ export class SessionSkillCatalog extends TypertRemoteService {
     return { name: request.name, path, sha256: hash }
   }
 
+  /**
+   * Import local skill files into `<dshHome>/skills`.
+   *
+   * A directory contributes every `.md` file directly inside it; a single file is
+   * imported on its own. A file without frontmatter receives one derived from its
+   * first `Use this …` line, because the provider ignores a skill without a name
+   * and a description.
+   * @param request - a file or directory path, with `~` expanded to the user profile.
+   * @returns the written skills and the files left alone with their reasons.
+   * @throws RemoteError for an empty or unreadable path.
+   */
+  @Remote
+  async importSkill(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue> {
+    void signal
+    const requested = request.path.trim()
+    if (requested === '') {
+      throw new RemoteError('gateway/bad-request', 'skill import path is empty', {})
+    }
+    const expanded = requested.startsWith('~') ? join(homedir(), requested.slice(1)) : requested
+    const source = resolve(expanded)
+    let isDirectory: boolean
+    try {
+      isDirectory = statSync(source).isDirectory()
+    } catch {
+      throw new RemoteError('gateway/bad-request', `skill import path is unreadable: ${source}`, {})
+    }
+    const files = isDirectory
+      ? readdirSync(source).filter(file => file.endsWith('.md')).sort().map(file => join(source, file))
+      : [source]
+    const imported: { name: string, path: string }[] = []
+    const skipped: { file: string, reason: string }[] = []
+    for (const file of files) {
+      if (!file.toLowerCase().endsWith('.md')) {
+        skipped.push({ file, reason: 'not a markdown file' })
+        continue
+      }
+      const name = basename(file).replace(/\.md$/iu, '')
+      if (!SKILL_NAME.test(name)) {
+        skipped.push({ file, reason: 'name is not lowercase a-z, 0-9, and hyphens' })
+        continue
+      }
+      let text: string
+      try {
+        text = readFileSync(file, 'utf8')
+      } catch {
+        skipped.push({ file, reason: 'unreadable' })
+        continue
+      }
+      const body = text.startsWith('---') ? text : `${derivedFrontmatter(name, text)}\n${text}`
+      mkdirSync(join(this.dshHome(), 'skills'), { recursive: true })
+      const target = this.userSkillPath(name)
+      writeFileSync(target, body, 'utf8')
+      imported.push({ name, path: target })
+    }
+    return { imported, skipped }
+  }
+
   /** @returns installed user skills with the hash of each file on disk. */
   private installedSkills(): { name: string, sha256: string }[] {
     const root = join(this.dshHome(), 'skills')
@@ -457,6 +515,19 @@ function skillSummary(text: string): string {
 
 /** Where a deployment reads its skill catalog from. */
 const DEFAULT_SKILLS_INDEX_URL = 'https://github.com/hvkeyn/deepseek-harness/releases/download/skills-v1/skills-index.json'
+
+/**
+ * Build the frontmatter a foreign skill file is missing.
+ * @param name - skill name taken from the file name.
+ * @param text - file body whose trigger line becomes the description.
+ * @returns a YAML frontmatter block with a JSON-quoted description.
+ */
+function derivedFrontmatter(name: string, text: string): string {
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '')
+  const trigger = lines.find(line => /^use this\b/iu.test(line)) ?? lines.find(line => !line.startsWith('#')) ?? name
+  const description = trigger.length <= 200 ? trigger : `${trigger.slice(0, 197)}...`
+  return `---\nname: ${name}\ndescription: ${JSON.stringify(description)}\n---\n\n`
+}
 
 /** @returns the configured catalog index URL. */
 function skillsIndexUrl(): string {

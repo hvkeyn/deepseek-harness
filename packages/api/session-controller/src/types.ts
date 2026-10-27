@@ -1,4 +1,4 @@
-﻿/** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
+/** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
 import type { NativeFileApplication } from '@deepseek-ai/dsh-native-command/types'
 
 import type {
@@ -361,6 +361,22 @@ export interface SkillInstallValue {
   readonly name: string
   readonly path: string
   readonly sha256: string
+}
+
+/** Import one local skill file, or every `.md` file in a directory. */
+export interface SkillImportRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  /** Absolute or home-relative path of a skill file or a directory of files. */
+  readonly path: string
+}
+
+/** Result of importing local skill files. */
+export interface SkillImportValue {
+  /** Files written into `~/.dsh/skills`, with the path each one landed at. */
+  readonly imported: readonly { readonly name: string, readonly path: string }[]
+  /** Files left alone, with the reason. */
+  readonly skipped: readonly { readonly file: string, readonly reason: string }[]
 }
 
 /** Result of a management mutation. */

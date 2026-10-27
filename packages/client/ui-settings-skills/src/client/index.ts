@@ -69,6 +69,10 @@ export function apply(ctx: ClientContext): void {
     setEnabled: async (name, enabled) => { await unwrap(() => ctx.remote.skills.setEnabled({ name, enabled })) },
     create: async (name, content) => { await unwrap(() => ctx.remote.skills.create({ name, content })) },
     remove: async (name) => { await unwrap(() => ctx.remote.skills.removeSkill({ name })) },
+    importSkill: async (path) => {
+      const value = await unwrap(() => ctx.remote.skills.importSkill({ path }))
+      return { imported: value.imported.map(entry => entry.name), skipped: value.skipped }
+    },
     loadCatalog,
     install: installSkill,
   }

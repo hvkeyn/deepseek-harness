@@ -1,4 +1,4 @@
-/** Skills management tab: list local skills, toggle them, add and remove files. */
+/** Skills management tab: list local skills, import files, add, toggle, and remove. */
 
 import { useEffect, useState } from 'react'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
@@ -6,6 +6,22 @@ import { Switch } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { SkillAdminEntry } from './api.ts'
 import { SkillCatalogSection, type CatalogSnapshot } from './SkillCatalogSection.tsx'
 import css from './SkillsSettingsTab.module.css'
+
+/** One file the import left alone, with the reason shown to the user. */
+export interface SkillImportSkip {
+  /** Path that was skipped. */
+  readonly file: string
+  /** Why it was skipped. */
+  readonly reason: string
+}
+
+/** Result of importing local skill files. */
+export interface SkillImportResult {
+  /** Names written into the user skill folder. */
+  readonly imported: readonly string[]
+  /** Files left alone. */
+  readonly skipped: readonly SkillImportSkip[]
+}
 
 /** Business face injected by the registrant: Remote calls, not React wiring. */
 export interface SkillsSettingsTabInjected {
@@ -19,6 +35,8 @@ export interface SkillsSettingsTabInjected {
   readonly create: (name: string, content: string) => Promise<void>
   /** Delete a user skill file. */
   readonly remove: (name: string) => Promise<void>
+  /** Import a local `.md` file or every `.md` file in a directory. */
+  readonly importSkill: (path: string) => Promise<SkillImportResult>
   /** Read the published catalog. */
   readonly loadCatalog: () => Promise<CatalogSnapshot>
   /** Install or refresh one catalog skill. */
@@ -36,11 +54,16 @@ const NAME = /^[a-z][a-z0-9-]{1,39}$/u
  * @param props - composed slot props and the Remote-backed actions.
  * @returns the tab element tree.
  */
-export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, remove, loadCatalog, install }: SkillsSettingsTabProps) {
+export function SkillsSettingsTab({
+  t, list, setAutoAttach, setEnabled, create, remove, importSkill, loadCatalog, install,
+}: SkillsSettingsTabProps) {
   const [skills, setSkills] = useState<readonly SkillAdminEntry[] | undefined>(undefined)
   const [autoAttach, setAutoAttachState] = useState(false)
   const [name, setName] = useState('')
   const [content, setContent] = useState('')
+  const [importPath, setImportPath] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [imported, setImported] = useState<SkillImportResult | undefined>(undefined)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
@@ -89,6 +112,27 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
     }
   }
 
+  const submitImport = async (): Promise<void> => {
+    setError('')
+    setStatus('')
+    setImported(undefined)
+    if (importPath.trim() === '') {
+      setError(t('import.empty'))
+      return
+    }
+    setImporting(true)
+    try {
+      const result = await importSkill(importPath.trim())
+      setImported(result)
+      setStatus(t('import.done').replace('{count}', String(result.imported.length)))
+      await refresh()
+    } catch (failure: unknown) {
+      setError(failure instanceof Error ? failure.message : t('import.failed'))
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const submit = async (): Promise<void> => {
     setError('')
     if (!NAME.test(name) || content.trim() === '') {
@@ -120,56 +164,105 @@ export function SkillsSettingsTab({ t, list, setAutoAttach, setEnabled, create, 
     }
   }
 
+  const enabled = skills?.filter(skill => skill.enabled).length ?? 0
+
   return (
     <section className={css.tab} aria-label={t('title')}>
       <header className={css.header}>
-        <h2 className={css.title}>{t('title')}</h2>
-        <p className={css.description}>{t('description')}</p>
+        <div>
+          <h2 className={css.title}>{t('title')}</h2>
+          <p className={css.description}>{t('description')}</p>
+        </div>
+        <div className={css.stats}>
+          <span className={css.badgeOn}>{t('stats.enabled').replace('{count}', String(enabled))}</span>
+          <span className={css.badge}>{t('stats.total').replace('{count}', String(skills?.length ?? 0))}</span>
+        </div>
       </header>
       {error === '' ? null : <p className={css.error} role="alert">{error}</p>}
-      {status === '' ? null : <p className={css.summary} role="status">{status}</p>}
-      <div className={css.auto}>
-        <div className={css.autoText}>
-          <span className={css.name}>{t('autoAttach')}</span>
-          <span className={css.summary}>{t('autoAttachDescription')}</span>
+      {status === '' ? null : <p className={css.status} role="status">{status}</p>}
+
+      <section className={css.card}>
+        <div className={css.auto}>
+          <div className={css.autoText}>
+            <span className={css.name}>{t('autoAttach')}</span>
+            <span className={css.summary}>{t('autoAttachDescription')}</span>
+          </div>
+          <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
         </div>
-        <Switch checked={autoAttach} label={t('autoAttach')} onChange={(next) => { void toggleAuto(next) }} />
-      </div>
-      <h3 className={css.formTitle}>
-        {t('connected.title')}
-        {skills === undefined ? null : ` · ${t('connected.count').replace('{on}', String(skills.filter(skill => skill.enabled).length)).replace('{total}', String(skills.length))}`}
-      </h3>
-      {skills === undefined
-        ? <p className={css.empty}>{t('adding')}</p>
-        : skills.length === 0
-          ? <p className={css.empty}>{t('noSkills')}</p>
-          : (
-            <ul className={css.list}>
-              {skills.map(skill => (
-                <li key={skill.name} className={css.row}>
-                  <div className={css.rowText}>
-                    <span className={css.name}>{skill.name}</span>
-                    <span className={css.summary}>{skill.description}</span>
-                    {skill.path === undefined ? null : <span className={css.path}>{skill.path}</span>}
-                  </div>
-                  <Switch checked={skill.enabled} label={t('enabled')} onChange={(next) => { void toggle(skill, next) }} />
-                  <button type="button" className={css.remove} title={t('removeTitle')} onClick={() => { void drop(skill) }}>
-                    {t('remove')}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-      <form className={css.form} onSubmit={(event) => { event.preventDefault(); void submit() }}>
+      </section>
+
+      <section className={css.card}>
+        <h3 className={css.formTitle}>{t('connected.title')}</h3>
+        {skills === undefined
+          ? <p className={css.empty}>{t('adding')}</p>
+          : skills.length === 0
+            ? <p className={css.empty}>{t('noSkills')}</p>
+            : (
+              <ul className={css.list}>
+                {skills.map(skill => (
+                  <li key={skill.name} className={css.row}>
+                    <span className={skill.enabled ? css.dotOn : css.dotOff} aria-hidden="true" />
+                    <div className={css.rowText}>
+                      <span className={css.name}>{skill.name}</span>
+                      <span className={css.summary}>{skill.description}</span>
+                      {skill.path === undefined ? null : <span className={css.path}>{skill.path}</span>}
+                    </div>
+                    <Switch checked={skill.enabled} label={t('enabled')} onChange={(next) => { void toggle(skill, next) }} />
+                    <button type="button" className={css.remove} title={t('removeTitle')} onClick={() => { void drop(skill) }}>
+                      {t('remove')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+      </section>
+
+      <section className={css.card}>
+        <h3 className={css.formTitle}>{t('import.title')}</h3>
+        <p className={css.hint}>{t('import.description')}</p>
+        <div className={css.inline}>
+          <input className={css.input} value={importPath} placeholder={t('import.placeholder')}
+            aria-label={t('import.placeholder')} onChange={(event) => { setImportPath(event.target.value) }} />
+          <button type="button" className={css.add} disabled={importing} onClick={() => { void submitImport() }}>
+            {importing ? t('import.working') : t('import.action')}
+          </button>
+        </div>
+        {imported === undefined ? null : (
+          <div className={css.report}>
+            {imported.imported.length === 0
+              ? <p className={css.empty}>{t('import.none')}</p>
+              : (
+                <ul className={css.chips}>
+                  {imported.imported.map(skillName => <li key={skillName} className={css.chip}>{skillName}</li>)}
+                </ul>
+              )}
+            {imported.skipped.length === 0 ? null : (
+              <ul className={css.skipped}>
+                {imported.skipped.map(entry => (
+                  <li key={entry.file} className={css.skippedRow}>
+                    <span className={css.path}>{entry.file}</span>
+                    <span className={css.summary}>{entry.reason}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </section>
+
+      <form className={css.card} onSubmit={(event) => { event.preventDefault(); void submit() }}>
         <h3 className={css.formTitle}>{t('addTitle')}</h3>
-        <input className={css.input} value={name} placeholder={t('addName')} aria-label={t('addName')}
-          onChange={(event) => { setName(event.target.value) }} />
+        <div className={css.inline}>
+          <input className={css.input} value={name} placeholder={t('addName')} aria-label={t('addName')}
+            onChange={(event) => { setName(event.target.value) }} />
+          <button type="submit" className={css.add} disabled={busy}>
+            {busy ? t('adding') : t('add')}
+          </button>
+        </div>
         <textarea className={css.textarea} value={content} placeholder={t('addContent')} aria-label={t('addContent')}
-          rows={6} onChange={(event) => { setContent(event.target.value) }} />
-        <button type="submit" className={css.add} disabled={busy}>
-          {busy ? t('adding') : t('add')}
-        </button>
+          rows={5} onChange={(event) => { setContent(event.target.value) }} />
       </form>
+
       <SkillCatalogSection loadCatalog={loadCatalog} install={install} onInstalled={() => { void refresh() }} t={t} />
     </section>
   )

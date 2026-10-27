@@ -85,6 +85,16 @@ export function SkillCatalogSection({ loadCatalog, install, onInstalled, t }: Sk
           {busy === 'load' ? t('catalog.loading') : catalog === undefined ? t('catalog.load') : t('catalog.reload')}
         </button>
       </div>
+      {busy === undefined ? null : (
+        <div className={css.bar} role="progressbar" aria-label={t('catalog.loading')}>
+          <span className={css.barFill} />
+        </div>
+      )}
+      {catalog === undefined ? null : (
+        <p className={css.counts}>
+          {t('catalog.counts').replace('{installed}', String(catalog.installed.length)).replace('{total}', String(catalog.skills.length))}
+        </p>
+      )}
       {failure === '' ? null : <p className={css.error} role="alert">{failure}</p>}
       {notice === '' ? null : <p className={css.notice} role="status">{notice}</p>}
       {catalog === undefined
@@ -104,7 +114,7 @@ export function SkillCatalogSection({ loadCatalog, install, onInstalled, t }: Sk
                     <div className={css.text}>
                       <span className={css.name}>{skill.name}</span>
                       <span className={css.description}>{skill.description}</span>
-                      <span className={css.state}>
+                      <span className={state === 'update' ? css.stateUpdate : state === 'current' ? css.stateCurrent : css.stateNew}>
                         {installing
                           ? t('catalog.installing').replace('{name}', skill.name)
                           : state === 'current' ? t('catalog.installed') : state === 'update' ? t('catalog.updateAvailable') : t('catalog.notInstalled')}
