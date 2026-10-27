@@ -3,6 +3,7 @@
 param([string]$OutputDirectory, [switch]$TestProgress, [switch]$CompileProgressOnly)
 $ErrorActionPreference = 'Stop'
 $installerRoot = Join-Path $PSScriptRoot '../installer'
+. (Join-Path $PSScriptRoot 'installer-brand-badge.ps1')
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot '../.desktop-build/targets/win-x64/installer-ui' }
 $output = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force $output | Out-Null
@@ -72,6 +73,12 @@ foreach ($asset in @('brand', 'brand-2x', 'brand-dark', 'brand-dark-2x', 'uninst
                 $background = if ($asset -like '*dark*') { [Drawing.Color]::FromArgb(21, 21, 23) } else { [Drawing.Color]::White }
                 $graphics.Clear($background)
                 $graphics.DrawImage($image, 0, 0, $image.Width, $image.Height)
+                if ($asset -eq 'uninstaller-sidebar') {
+                    Add-InstallerEditionBadge -Graphics $graphics -Bitmap $bitmap -Placement Below
+                }
+                else {
+                    Add-InstallerEditionBadge -Graphics $graphics -Bitmap $bitmap -Dark:($asset -like '*dark*')
+                }
             } finally { $graphics.Dispose() }
             $bitmap.Save((Join-Path $output "$asset.bmp"), [Drawing.Imaging.ImageFormat]::Bmp)
         } finally { $bitmap.Dispose() }

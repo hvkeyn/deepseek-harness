@@ -79,7 +79,7 @@ describe('official browser-brand plugin', () => {
   })
 
   it('renders the official name independently from both requested mark sizes', () => {
-    const name = render(<OfficialBrandName />)
+    const name = render(<OfficialBrandName t={key => key} />)
     expect(name.container.querySelector('svg')?.getAttribute('viewBox')).toBe('26 0 156 24')
     name.unmount()
 
@@ -87,5 +87,12 @@ describe('official browser-brand plugin', () => {
     expect(mark.container.querySelector('svg')?.getAttribute('width')).toBe('34')
     mark.rerender(<OfficialBrandMark size={24} />)
     expect(mark.container.querySelector('svg')?.getAttribute('width')).toBe('24')
+  })
+
+  it('marks the official name with the compact edition marker', () => {
+    const labels: Record<string, string> = { 'brand.hvkeynEdition': 'HVKeyn Edition', 'brand.hvkeynEditionCompact': 'HVKeyn' }
+    const name = render(<OfficialBrandName t={key => labels[key] ?? key} />)
+    const marker = name.getByText('HVKeyn')
+    expect(marker.getAttribute('title')).toBe('HVKeyn Edition')
   })
 })

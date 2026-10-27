@@ -1,6 +1,9 @@
 /**
- * Validate the file-owned Windows cache worker limit before packaging starts.
+ * Validate the file-owned Windows worker limits before packaging starts.
  * @param environment Windows packaging settings loaded from .env.windows.
- * @returns Worker limit from one to eight, defaulting to four when omitted; invalid values throw.
+ * @returns Signature-cache and package-worker limits from one to eight, defaulting to four when omitted; invalid values throw.
  */
-export function resolveWindowsPackageSettings(environment: NodeJS.ProcessEnv): { signatureCacheConcurrency: number }
+export function resolveWindowsPackageSettings(environment: NodeJS.ProcessEnv): {
+  signatureCacheConcurrency: number
+  packConcurrency: number
+}

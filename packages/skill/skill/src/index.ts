@@ -116,6 +116,8 @@ export interface SkillLookupOptions {
 export interface SkillViewOptions extends SkillLookupOptions {
   /** Viewing scope (the calling agent); omitted reads the global layer alone. */
   readonly scope?: ScopeKey | undefined
+  /** Include skills withheld by {@link SkillRegistry.setDisabled}; management surfaces only. */
+  readonly includeDisabled?: boolean | undefined
 }
 
 /**
@@ -364,6 +366,8 @@ export class SkillRegistry extends Service {
     () => { this.invalidateCache() },
   )
   private readonly collectCache = new Map<string, Map<string, IndexedCandidate>>()
+  /** Names excluded from every catalog read; owned by the skill manager plugin. */
+  private disabled = new Set<string>()
   private revision = 0
   private nextProviderOrder = 0
   /** Stable identities for cache keys; scope keys are opaque identity-compared objects. */
@@ -482,6 +486,7 @@ export class SkillRegistry extends Service {
     const collected = await this.collect(options)
     return {
       skills: [...collected.entries.values()]
+        .filter(entry => options.includeDisabled === true || !this.disabled.has(entry.candidate.name))
         .map(entry => toSummary(entry.candidate))
         .sort(compareSkillSummary),
       complete: collected.cacheable,
@@ -499,6 +504,7 @@ export class SkillRegistry extends Service {
    */
   async get(name: string, options: SkillViewOptions = {}): Promise<SkillDefinition | undefined> {
     if (!isSkillName(name)) return undefined
+    if (this.disabled.has(name)) return undefined
     const collected = await this.collect(options)
     throwIfAborted(options.signal)
     const match = collected.entries.get(name)
@@ -514,6 +520,26 @@ export class SkillRegistry extends Service {
       return undefined
     }
     return definition
+  }
+
+  /**
+   * Exclude named skills from catalog reads and from `get()`. The catalog is the
+   * single place consumers discover skills, so a disabled name disappears for the
+   * model-facing `skill` tool and for the `/` suggestions alike; the file itself
+   * stays untouched.
+   * @param names - skill names to withhold; an empty list re-enables everything.
+   */
+  setDisabled(names: readonly string[]): void {
+    const next = new Set(names)
+    if (next.size === this.disabled.size && [...next].every(name => this.disabled.has(name))) return
+    this.disabled = next
+    this.invalidateCache()
+    this.notifyChange()
+  }
+
+  /** @returns the currently withheld skill names, in insertion order. */
+  get disabledSkills(): readonly string[] {
+    return [...this.disabled]
   }
 
   private async collect(options: SkillViewOptions): Promise<CollectResult> {

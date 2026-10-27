@@ -80,7 +80,7 @@ body {
   display: grid;
   flex: 1;
   min-height: 0;
-  grid-template-rows: 40px minmax(0, 1fr) 104px;
+  grid-template-rows: 56px minmax(0, 1fr) 104px;
   justify-items: center;
   align-items: center;
   padding: 24px 48px 76px;
@@ -93,13 +93,39 @@ body {
   grid-column: 1;
 }
 
+.brand-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  max-width: 100%;
+  height: 56px;
+}
+
 .brand {
   display: block;
   flex: none;
-  width: 100%;
+  width: auto;
   height: 40px;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* The edition is a caption under the wordmark: the hero lockup keeps its size and
+   the marker reads at the window's full width. */
+.edition {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 12px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .tagline {
