@@ -53,6 +53,7 @@ export function apply(ctx: ClientContext): void {
         name: skill.name,
         version: skill.version,
         sha256: skill.sha256,
+        ...skill.bytes === undefined ? {} : { bytes: skill.bytes },
         description: (current === 'ru' ? skill.description.ru : current === 'zh' ? skill.description.zh : undefined)
           ?? skill.description.en,
       })),

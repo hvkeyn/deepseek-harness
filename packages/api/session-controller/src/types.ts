@@ -335,6 +335,8 @@ export interface SkillCatalogEntry {
   readonly url: string
   /** SHA-256 of the skill file, lowercase hex. */
   readonly sha256: string
+  /** Size of the published file in bytes, when the index reports it. */
+  readonly bytes?: number
   /** Summaries by language; a missing language falls back to English. */
   readonly description: { readonly en: string, readonly ru?: string, readonly zh?: string }
 }

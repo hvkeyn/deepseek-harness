@@ -549,7 +549,7 @@ function parseCatalog(parsed: unknown): SkillCatalogEntry[] {
     throw new RemoteError('gateway/internal', 'skill catalog has no skills array', {})
   }
   return skills.map((raw) => {
-    const value = raw as { name?: unknown, version?: unknown, url?: unknown, sha256?: unknown, description?: unknown }
+    const value = raw as { name?: unknown, version?: unknown, url?: unknown, sha256?: unknown, bytes?: unknown, description?: unknown }
     if (typeof value.name !== 'string' || typeof value.url !== 'string' || typeof value.sha256 !== 'string') {
       throw new RemoteError('gateway/internal', 'skill catalog entry is malformed', {})
     }
@@ -559,6 +559,7 @@ function parseCatalog(parsed: unknown): SkillCatalogEntry[] {
       version: typeof value.version === 'string' ? value.version : '',
       url: value.url,
       sha256: value.sha256,
+      ...typeof value.bytes === 'number' ? { bytes: value.bytes } : {},
       description: {
         en: typeof description?.en === 'string' ? description.en : '',
         ...typeof description?.ru === 'string' ? { ru: description.ru } : {},

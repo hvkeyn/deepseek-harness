@@ -44,6 +44,7 @@ foreach ($file in $skillFiles) {
     file        = "hvkeyn-skill-$name.md"
     url         = "$base" + "hvkeyn-skill-$name.md"
     sha256      = $hash
+    bytes       = $file.Length
     description = [ordered]@{
       en = $summary.Trim()
       ru = if ($localized -and $localized.ru) { $localized.ru } else { $summary.Trim() }
