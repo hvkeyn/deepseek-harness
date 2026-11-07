@@ -1275,6 +1275,7 @@ export const ru: Record<string, Record<string, string>> = {
   "pluginMarket": {
     "menu.title": "Ещё",
     "menu.browse": "Просмотрите другие плагины",
+    "menu.add": "Добавить плагин",
     "menu.create": "Создайте свой плагин",
     "menu.prompt": "Создай новый плагин DeepSeek Harness: сначала спроси, что он должен делать, потом напиши его в этой рабочей области через Cordis и подключи.",
     "title": "Обзор",

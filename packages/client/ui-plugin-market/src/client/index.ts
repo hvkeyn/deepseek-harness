@@ -59,6 +59,7 @@ export function apply(ctx: ClientContext): void {
   // edition keeps the same two entries in its More menu.
   const menu: EntryMenuFace = {
     browsePlugins: () => { ctx.get('pluginNavigation')?.openDiscover() },
+    addPlugin: () => { ctx.get('pluginNavigation')?.openInstall() },
     createPlugin: () => {
       const options: StartSessionOptions = { agentPreset: 'cordis', prompt: t('menu.prompt'), clearPreviousDraft: true }
       ctx.get('uiWorkspace')?.startSession(undefined, options)

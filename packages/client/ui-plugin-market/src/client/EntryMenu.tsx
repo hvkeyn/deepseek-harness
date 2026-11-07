@@ -9,6 +9,8 @@ import css from './EntryMenu.module.css'
 export interface EntryMenuFace {
   /** Open the Plugins panel on its market tab. */
   readonly browsePlugins: () => void
+  /** Open the plug-in install dialog for a package spec. */
+  readonly addPlugin: () => void
   /** Start a session that writes a new plugin. */
   readonly createPlugin: () => void
 }
@@ -17,11 +19,11 @@ export interface EntryMenuFace {
 export type EntryMenuProps = PropsLocale<'pluginMarket'> & InjectFace<EntryMenuFace>
 
 /**
- * Render the sidebar footer menu with the two plugin entries.
+ * Render the sidebar footer menu with the three plugin entries.
  * @param props - locale seat and the injected actions.
  * @returns the trigger and, while open, its menu.
  */
-export function EntryMenu({ t, browsePlugins, createPlugin }: EntryMenuProps) {
+export function EntryMenu({ t, browsePlugins, addPlugin, createPlugin }: EntryMenuProps) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement | null>(null)
 
@@ -52,6 +54,10 @@ export function EntryMenu({ t, browsePlugins, createPlugin }: EntryMenuProps) {
           <button type="button" role="menuitem" className={css.item}
             onClick={() => { setOpen(false); browsePlugins() }}>
             {t('menu.browse')}
+          </button>
+          <button type="button" role="menuitem" className={css.item}
+            onClick={() => { setOpen(false); addPlugin() }}>
+            {t('menu.add')}
           </button>
           <button type="button" role="menuitem" className={css.item}
             onClick={() => { setOpen(false); createPlugin() }}>
