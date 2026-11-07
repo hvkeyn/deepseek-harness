@@ -292,6 +292,10 @@ export function SidebarRoot({
         </nav>
       )}
 
+      {/* Rows that open menus instead of switching panels, such as the plugin
+          More menu, sit directly under the navigation list. */}
+      {renderSlot('sidebar.panellist.actions', { wide })}
+
       {/* The browsing region fills the column between the controls and the
           foot in both states; its rail icon column rides the same slot. */}
       <div className={css.regionArea}>

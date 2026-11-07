@@ -1,7 +1,7 @@
-/** Sidebar footer menu: open the plugin market and start a plugin-creation session. */
+/** Sidebar row menu: open the plugin market, add a plugin, or start plugin authoring. */
 
 import { useEffect, useRef, useState } from 'react'
-import type { InjectFace, PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import { IconEllipsisOutlineRegular, MenuSurface } from '@deepseek-ai/dsh-client-ui-primitives'
 import css from './EntryMenu.module.css'
 
@@ -15,15 +15,15 @@ export interface EntryMenuFace {
   readonly createPlugin: () => void
 }
 
-/** Composed props of the footer menu. */
-export type EntryMenuProps = PropsLocale<'pluginMarket'> & InjectFace<EntryMenuFace>
+/** Composed props of the sidebar menu row. */
+export type EntryMenuProps = PropsRuntime<'sidebar.panellist.actions'> & PropsLocale<'pluginMarket'> & InjectFace<EntryMenuFace>
 
 /**
- * Render the sidebar footer menu with the three plugin entries.
- * @param props - locale seat and the injected actions.
+ * Render the sidebar row with the three plugin entries.
+ * @param props - sidebar width, locale seat, and the injected actions.
  * @returns the trigger and, while open, its menu.
  */
-export function EntryMenu({ t, browsePlugins, addPlugin, createPlugin }: EntryMenuProps) {
+export function EntryMenu({ wide, t, browsePlugins, addPlugin, createPlugin }: EntryMenuProps) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement | null>(null)
 
@@ -48,6 +48,7 @@ export function EntryMenu({ t, browsePlugins, addPlugin, createPlugin }: EntryMe
         onClick={() => { setOpen(value => !value) }}
       >
         <IconEllipsisOutlineRegular size={16} />
+        {wide ? <span className={css.label}>{t('menu.title')}</span> : null}
       </button>
       {open ? (
         <MenuSurface className={css.menu} role="menu" aria-label={t('menu.title')}>

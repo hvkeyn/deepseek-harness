@@ -1,40 +1,50 @@
-/* Sidebar footer menu: one trigger in the rail, a compact menu above it. */
+/* Sidebar nav row menu: a row like the panel rows, with a compact menu below. */
 
 .root {
   position: relative;
   display: flex;
+  padding: 0 8px;
 }
 
 .trigger,
 .triggerOpen {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
+  gap: 10px;
+  width: 100%;
+  min-height: 32px;
+  padding: 6px 10px;
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: start;
+  color: var(--dsw-alias-label-primary);
   cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: background-color 120ms ease;
 }
 
 .trigger:hover,
 .triggerOpen {
   background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-fill-l1, transparent));
-  color: var(--dsw-alias-label-primary);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu {
   position: absolute;
-  bottom: 34px;
+  top: 36px;
   left: 0;
   z-index: 30;
   display: flex;
   flex-direction: column;
-  min-width: 240px;
+  min-width: 260px;
   padding: 6px;
   border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 10px;
@@ -50,6 +60,7 @@
   border: none;
   border-radius: 7px;
   background: transparent;
+  font-family: inherit;
   font-size: 12px;
   line-height: 18px;
   text-align: start;

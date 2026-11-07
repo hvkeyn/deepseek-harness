@@ -65,7 +65,7 @@ export function apply(ctx: ClientContext): void {
       ctx.get('uiWorkspace')?.startSession(undefined, options)
     },
   }
-  ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
-    name: 'sidebar.footer.action', id: 'entry-customization', locale: NS, inject: () => menu,
+  ctx.slots.inject('sidebar.panellist.actions', () => ctx.slots.register({
+    name: 'sidebar.panellist.actions', id: 'entry-customization', locale: NS, inject: () => menu,
   }, EntryMenu))
 }
