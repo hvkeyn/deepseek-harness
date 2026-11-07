@@ -112,16 +112,20 @@ export function ImageAnnotator({ src, name, labels, onCancel, onSave }: ImageAnn
             ref={canvasRef}
             className={css.canvas}
             onPointerDown={(event) => {
-              event.currentTarget.setPointerCapture(event.pointerId)
+              const point = toIntrinsic(event)
+              setStrokes(current => appendPoint(current, point, { color, width }, false))
               setDrawing(true)
-              setStrokes(current => appendPoint(current, toIntrinsic(event), { color, width }, false))
+              // Capture keeps a stroke alive outside the canvas; a synthetic or
+              // already-released pointer rejects it, and the stroke still stands.
+              try { event.currentTarget.setPointerCapture(event.pointerId) } catch { /* pointer not capturable */ }
             }}
             onPointerMove={(event) => {
               if (!drawing) return
-              setStrokes(current => appendPoint(current, toIntrinsic(event), { color, width }, true))
+              const point = toIntrinsic(event)
+              setStrokes(current => appendPoint(current, point, { color, width }, true))
             }}
             onPointerUp={(event) => {
-              event.currentTarget.releasePointerCapture(event.pointerId)
+              try { event.currentTarget.releasePointerCapture(event.pointerId) } catch { /* capture was not held */ }
               setDrawing(false)
             }}
           />

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type {
   ComposerAttachment, ComposerAttachmentsProps, ComposerImageAttachment,
 } from '@deepseek-ai/dsh-client-ui-conversation/client'
@@ -106,7 +107,7 @@ export function ComposerAttachments({
           />
         </div>
       )}
-      {annotating !== null && (
+      {annotating !== null && createPortal((
         <ImageAnnotator
           src={annotating.previewUrl}
           name={annotating.file.name || 'image.png'}
@@ -114,7 +115,7 @@ export function ComposerAttachments({
           onCancel={() => { setAnnotating(null) }}
           onSave={(file) => { onAddFiles([file]); onRemoveAttachment(annotating.id); setAnnotating(null) }}
         />
-      )}
+      ), document.body)}
       {preview !== null && (
         <ImageLightbox
           src={preview.previewUrl}
