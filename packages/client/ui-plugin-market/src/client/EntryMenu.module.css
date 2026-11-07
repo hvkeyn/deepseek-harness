@@ -1,0 +1,63 @@
+/* Sidebar footer menu: one trigger in the rail, a compact menu above it. */
+
+.root {
+  position: relative;
+  display: flex;
+}
+
+.trigger,
+.triggerOpen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.trigger:hover,
+.triggerOpen {
+  background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-fill-l1, transparent));
+  color: var(--dsw-alias-label-primary);
+}
+
+.menu {
+  position: absolute;
+  bottom: 34px;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  padding: 6px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-l1, #fff);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: start;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.item:hover {
+  background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-fill-l1, transparent));
+}

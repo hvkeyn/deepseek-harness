@@ -1273,6 +1273,10 @@ export const ru: Record<string, Record<string, string>> = {
     "reasonOperationError": "Хост сообщил об ошибке.",
   },
   "pluginMarket": {
+    "menu.title": "Ещё",
+    "menu.browse": "Просмотрите другие плагины",
+    "menu.create": "Создайте свой плагин",
+    "menu.prompt": "Создай новый плагин DeepSeek Harness: сначала спроси, что он должен делать, потом напиши его в этой рабочей области через Cordis и подключи.",
     "title": "Обзор",
     "refresh": "Обновить",
     "loading": "Чтение индекса",
