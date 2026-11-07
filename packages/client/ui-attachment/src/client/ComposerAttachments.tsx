@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
   ComposerAttachment, ComposerAttachmentsProps, ComposerImageAttachment,
 } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { IconCloseFillRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconCloseFillRegular, IconEditOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import { AttachmentRail } from '../AttachmentRail.tsx'
 import type { AttachmentRailItem } from '../AttachmentRail.tsx'
 import { DropOverlay } from '../DropOverlay.tsx'
 import { FileCard } from '../FileCard.tsx'
 import { ImageLightbox } from '@deepseek-ai/dsh-client-ui-primitives'
-import { attachmentRailLabels, dropOverlayLabels, fileCardLabels, lightboxLabels } from './labels.ts'
+import { annotatorLabels, attachmentRailLabels, dropOverlayLabels, fileCardLabels, lightboxLabels } from './labels.ts'
+import { ImageAnnotator } from './ImageAnnotator.tsx'
 import { installDocumentDropEvents } from './drop-events.ts'
 import css from './ComposerAttachments.module.css'
 
@@ -22,6 +23,7 @@ export function ComposerAttachments({
   attachments, canAcceptDrop, onAddFiles, onRemoveAttachment, uploads, onRetryFile, dropLimits, t,
 }: ComposerAttachmentsProps) {
   const [preview, setPreview] = useState<ComposerImageAttachment | null>(null)
+  const [annotating, setAnnotating] = useState<ComposerImageAttachment | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const dragDepth = useRef(0)
   const closePreview = useCallback(() => { setPreview(null) }, [])
@@ -83,6 +85,15 @@ export function ComposerAttachments({
                   </button>
                   <button
                     type="button"
+                    className={css.annotate}
+                    title={t('image.annotate')}
+                    aria-label={t('image.annotate')}
+                    onClick={() => { setAnnotating(attachment) }}
+                  >
+                    <IconEditOutlineRegular size={12} />
+                  </button>
+                  <button
+                    type="button"
                     className={css.remove}
                     aria-label={t('image.remove', { name: attachment.file.name })}
                     onClick={() => { onRemoveAttachment(attachment.id) }}
@@ -94,6 +105,15 @@ export function ComposerAttachments({
             }}
           />
         </div>
+      )}
+      {annotating !== null && (
+        <ImageAnnotator
+          src={annotating.previewUrl}
+          name={annotating.file.name || 'image.png'}
+          labels={annotatorLabels(t)}
+          onCancel={() => { setAnnotating(null) }}
+          onSave={(file) => { onAddFiles([file]); onRemoveAttachment(annotating.id); setAnnotating(null) }}
+        />
       )}
       {preview !== null && (
         <ImageLightbox

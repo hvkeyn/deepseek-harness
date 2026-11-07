@@ -77,3 +77,44 @@ export function attachmentRailLabels(t: TranslateNS<'conversation'>): Attachment
     scrollRight: t('attachment.scrollRight'),
   }
 }
+
+/** Labels for the pen overlay over an attached image. */
+export interface AnnotatorLabels {
+  /** Dialog title. */
+  readonly title: string
+  /** One line of guidance under the title. */
+  readonly hint: string
+  /** Colour swatch group label. */
+  readonly color: string
+  /** Width button group label. */
+  readonly size: string
+  /** Remove the newest stroke. */
+  readonly undo: string
+  /** Remove every stroke. */
+  readonly clear: string
+  /** Close without saving. */
+  readonly cancel: string
+  /** Produce the marked copy. */
+  readonly save: string
+  /** Failure line when the canvas cannot be encoded. */
+  readonly failed: string
+}
+
+/**
+ * Resolve pen-overlay strings from the conversation namespace.
+ * @param t - conversation namespace translator.
+ * @returns translated annotator labels.
+ */
+export function annotatorLabels(t: TranslateNS<'conversation'>): AnnotatorLabels {
+  return {
+    title: t('annotate.title'),
+    hint: t('annotate.hint'),
+    color: t('annotate.color'),
+    size: t('annotate.size'),
+    undo: t('annotate.undo'),
+    clear: t('annotate.clear'),
+    cancel: t('annotate.cancel'),
+    save: t('annotate.save'),
+    failed: t('annotate.failed'),
+  }
+}
