@@ -318,6 +318,18 @@
     - id: ui-plugin-manager
       name: '@deepseek-ai/dsh-client-ui-plugin-manager'
 
+    # Plugin market: the Host reads configured market indexes and the Discover
+    # tab installs their bundles through the same install dialog. The default
+    # index is this fork's catalog; the page also accepts custom sources.
+    - id: plugin-market
+      name: '@deepseek-ai/dsh-plugin-market'
+      config:
+        indexes:
+          - https://raw.githubusercontent.com/hvkeyn/deepseek-harness/feat/hvkeyn-edition-harness-bundle/market/plugins-index.json
+
+    - id: ui-plugin-market
+      name: '@deepseek-ai/dsh-client-ui-plugin-market'
+
     # Read-only Plugin list tab in the Settings Plugins section; the built-in
     # bundles the sidebar page leaves out are inspected here.
     - id: ui-settings-plugin-inventory
