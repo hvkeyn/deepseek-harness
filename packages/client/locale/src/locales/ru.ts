@@ -1272,7 +1272,16 @@ export const ru: Record<string, Record<string, string>> = {
     "reasonIncompatibleInstalled": "Удалите его и установите версию, совместимую с этим DSH.",
     "reasonOperationError": "Хост сообщил об ошибке.",
   },
-  "pluginMarket": {
+  "connectionStatus": {
+    "label.online": "Онлайн",
+    "label.slow": "Медленная сеть",
+    "label.offline": "Офлайн",
+    "label.checking": "Проверка",
+    "tip.online": "Связь с Harness в порядке. Если сеть пропадёт, работу подхватит скилл offline-mode.",
+    "tip.slow": "Связь медленная: сначала механические шаги, без больших выгрузок контекста.",
+    "tip.offline": "Harness недоступен или браузер офлайн: используйте скилл offline-mode и полагайтесь на локальные файлы и инструменты.",
+    "tip.checking": "Проверяю связь с Harness."
+  },  "pluginMarket": {
     "menu.title": "Ещё",
     "menu.browse": "Просмотрите другие плагины",
     "menu.add": "Добавить плагин",

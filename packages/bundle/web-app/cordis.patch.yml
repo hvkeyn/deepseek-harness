@@ -397,6 +397,11 @@
     - id: ui-subagent
       name: '@deepseek-ai/dsh-client-ui-subagent'
 
+    # Session header chip: online / slow / offline, the hint that drives the
+    # offline-mode skill when the link drops.
+    - id: ui-connection-status
+      name: '@deepseek-ai/dsh-client-ui-connection-status'
+
     - id: ui-reference
       name: '@deepseek-ai/dsh-client-ui-reference'
 
