@@ -1493,6 +1493,9 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
       mime-types:
         specifier: ^3.0.2
         version: 3.0.2

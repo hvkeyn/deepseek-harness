@@ -11,6 +11,7 @@ import type {} from '@deepseek-ai/dsh-working-directory'
 import type { ScopeKey } from '@deepseek-ai/dsh-scope'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { unzipSync } from 'fflate'
 import { createHash } from 'node:crypto'
 import { basename, join, relative, isAbsolute, resolve } from 'node:path'
 import { homedir } from 'node:os'
@@ -291,13 +292,14 @@ export class SessionSkillCatalog extends TypertRemoteService {
   /**
    * Import local skill files into `<dshHome>/skills`.
    *
-   * A directory contributes every `.md` file directly inside it; a single file is
+   * A directory contributes every `.md` file directly inside it, a zip archive
+   * contributes every `.md` entry it holds at any depth, and a single file is
    * imported on its own. A file without frontmatter receives one derived from its
    * first `Use this …` line, because the provider ignores a skill without a name
    * and a description.
-   * @param request - a file or directory path, with `~` expanded to the user profile.
+   * @param request - a file, directory, or zip path, with `~` expanded to the user profile.
    * @returns the written skills and the files left alone with their reasons.
-   * @throws RemoteError for an empty or unreadable path.
+   * @throws RemoteError for an empty, unreadable, or broken archive path.
    */
   @Remote
   async importSkill(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue> {
@@ -314,35 +316,52 @@ export class SessionSkillCatalog extends TypertRemoteService {
     } catch {
       throw new RemoteError('gateway/bad-request', `skill import path is unreadable: ${source}`, {})
     }
+    const imported: { name: string, path: string }[] = []
+    const skipped: { file: string, reason: string }[] = []
+    if (!isDirectory && source.toLowerCase().endsWith('.zip')) {
+      let entries: Record<string, Uint8Array>
+      try {
+        entries = unzipSync(new Uint8Array(readFileSync(source)))
+      } catch {
+        throw new RemoteError('gateway/bad-request', `skill archive is unreadable: ${source}`, {})
+      }
+      for (const [entry, bytes] of Object.entries(entries)) {
+        if (!entry.toLowerCase().endsWith('.md')) continue
+        this.installSkillText(`${source}/${entry}`, bytes, imported, skipped)
+      }
+      return { imported, skipped }
+    }
     const files = isDirectory
       ? readdirSync(source).filter(file => file.endsWith('.md')).sort().map(file => join(source, file))
       : [source]
-    const imported: { name: string, path: string }[] = []
-    const skipped: { file: string, reason: string }[] = []
     for (const file of files) {
       if (!file.toLowerCase().endsWith('.md')) {
         skipped.push({ file, reason: 'not a markdown file' })
         continue
       }
-      const name = basename(file).replace(/\.md$/iu, '')
-      if (!SKILL_NAME.test(name)) {
-        skipped.push({ file, reason: 'name is not lowercase a-z, 0-9, and hyphens' })
-        continue
-      }
-      let text: string
-      try {
-        text = readFileSync(file, 'utf8')
-      } catch {
-        skipped.push({ file, reason: 'unreadable' })
-        continue
-      }
-      const body = text.startsWith('---') ? text : `${derivedFrontmatter(name, text)}\n${text}`
-      mkdirSync(join(this.dshHome(), 'skills'), { recursive: true })
-      const target = this.userSkillPath(name)
-      writeFileSync(target, body, 'utf8')
-      imported.push({ name, path: target })
+      this.installSkillText(file, readFileSync(file), imported, skipped)
     }
     return { imported, skipped }
+  }
+
+  /** Write one decoded skill file, or record why it was left alone. */
+  private installSkillText(
+    file: string,
+    bytes: Uint8Array,
+    imported: { name: string, path: string }[],
+    skipped: { file: string, reason: string }[],
+  ): void {
+    const name = basename(file).replace(/\.md$/iu, '')
+    if (!SKILL_NAME.test(name)) {
+      skipped.push({ file, reason: 'name is not lowercase a-z, 0-9, and hyphens' })
+      return
+    }
+    const text = new TextDecoder('utf-8').decode(bytes)
+    const body = text.startsWith('---') ? text : `${derivedFrontmatter(name, text)}\n${text}`
+    mkdirSync(join(this.dshHome(), 'skills'), { recursive: true })
+    const target = this.userSkillPath(name)
+    writeFileSync(target, body, 'utf8')
+    imported.push({ name, path: target })
   }
 
   /** @returns installed user skills with the hash of each file on disk. */
