@@ -51,6 +51,7 @@ function providePresentation(ctx: Context): PresentationCapture {
     children: {
       'tool.call.toolview': { kind: 'keyed', scope: 'session' },
       'conversation.user.text.node': { kind: 'keyed', scope: 'session', inline: true },
+      'conversation.composer.dock': { kind: 'list', scope: 'session' },
     },
   } as never, () => null)
   const capture: PresentationCapture = {
@@ -150,6 +151,8 @@ describe('apply', () => {
           'row.instructions': '说明',
           'row.inspect': '查看',
           'menu.userOnly': '仅用户',
+          'active.title': '已应用',
+          'active.more': '+{count}',
         },
         en: {
           'row.title': 'Skill',
@@ -160,6 +163,8 @@ describe('apply', () => {
           'row.instructions': 'Instructions',
           'row.inspect': 'Inspect',
           'menu.userOnly': 'user-only',
+          'active.title': 'Applied',
+          'active.more': '+{count}',
         },
       },
     }])

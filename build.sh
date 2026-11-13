@@ -94,6 +94,18 @@ if [[ "$SKIP_INSTALL" -eq 0 ]]; then
 fi
 
 if [[ "$DO_PACK" -eq 1 ]]; then
+  # The official client profile embeds the source commit and the product version,
+  # which are also what mark the artifacts as this fork's edition. A caller may
+  # supply the commit: a container checkout belongs to another user, so Git
+  # refuses to read it even though the sources are present.
+  if [[ -z "${DSH_CLIENT_COMMIT_HASH:-}" ]]; then
+    if ! PACK_COMMIT="$(git rev-parse --short HEAD 2>/dev/null)"; then
+      echo "build.sh: --pack needs the packed commit; set DSH_CLIENT_COMMIT_HASH when Git cannot read this checkout." >&2
+      exit 1
+    fi
+    export DSH_CLIENT_COMMIT_HASH="$PACK_COMMIT"
+  fi
+  export DSH_CLIENT_VERSION="$VERSION"
   echo ">> pnpm run build:official"
   "${PNPM[@]}" run build:official
 else
@@ -104,9 +116,11 @@ fi
 # --- packaging ---------------------------------------------------------------
 
 if [[ "$DO_PACK" -eq 1 ]]; then
-  echo ">> pnpm run release:pack --family dsh"
+  # The pack fans out over the workspace: the publish-order file keeps the family order.
+  PACK_CONCURRENCY="${DSH_PACK_CONCURRENCY:-4}"
+  echo ">> pnpm run release:pack --family dsh --concurrency ${PACK_CONCURRENCY}"
   mkdir -p "dist/packed"
-  "${PNPM[@]}" run release:pack --family dsh --out "dist/packed"
+  "${PNPM[@]}" run release:pack --family dsh --out "dist/packed" --concurrency "${PACK_CONCURRENCY}"
 fi
 
 if [[ "$DO_BUNDLE" -eq 1 ]]; then

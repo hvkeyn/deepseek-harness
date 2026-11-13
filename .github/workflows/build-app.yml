@@ -36,17 +36,31 @@ jobs:
     name: Debian (bookworm)
     runs-on: ubuntu-latest
     container: debian:bookworm
+    env:
+      # The official client profile embeds this commit; the container's checkout
+      # is owned by another user, so Git itself cannot resolve HEAD there.
+      DSH_CLIENT_COMMIT_HASH: ${{ github.sha }}
     steps:
       - name: Install base packages
         run: |
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends ca-certificates curl xz-utils git build-essential python3
       - uses: actions/checkout@v4
+      - name: Trust the mounted checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Enable pnpm
         run: corepack enable
+      # The container starts empty on every run; the store makes `pnpm install --frozen-lockfile`
+      # resolve from disk instead of the registry.
+      - name: Cache the pnpm store
+        uses: actions/cache@v4
+        with:
+          path: /root/.local/share/pnpm/store
+          key: pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
       - name: Build and pack
         run: ./build.sh --pack
       - uses: actions/upload-artifact@v4
@@ -58,6 +72,8 @@ jobs:
   windows:
     name: Windows
     runs-on: windows-latest
+    env:
+      DSH_CLIENT_COMMIT_HASH: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

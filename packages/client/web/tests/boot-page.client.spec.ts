@@ -15,6 +15,7 @@ describe('BootPage', () => {
     const { el } = mount()
     expect(el.firstElementChild?.getAttribute('data-dsh-boot')).toBe('')
     expect(el.textContent).toContain('HARNESS')
+    expect(el.textContent).toContain('HVKeyn Edition')
     expect(el.textContent).toContain('Loading plugins…')
   })
 
@@ -50,6 +51,7 @@ describe('BootPage', () => {
     page.fail(report)
     page.setState('a', 'active')
     expect(el.textContent).toContain(report)
+    expect(el.textContent).toContain('HVKeyn Edition')
     expect(el.textContent).not.toContain('Loading plugins…')
   })
 

@@ -101,7 +101,11 @@ export function createElectronBuilderConfig(
   if (windowsSigner !== undefined) {
     installWindowsNsisBootstrapSigner({ sign: windowsSigner })
   }
-  const update = unsigned || (resolvedPlatform !== 'darwin' && resolvedPlatform !== 'win32')
+  // An unsigned build has no signing identity to check a downloaded installer against, so it ships
+  // no feed unless this deployment names its own location explicitly.
+  const explicitUpdateFeed = env.DSH_DESKTOP_UPDATE_FEED_URL?.trim()
+  const update = (resolvedPlatform !== 'darwin' && resolvedPlatform !== 'win32')
+    || (unsigned && (explicitUpdateFeed === undefined || explicitUpdateFeed === ''))
     ? undefined
     : resolveDesktopAutoUpdateConfig(env, resolvedPlatform, resolvedArch)
   if (preparedRuntime !== undefined) buildPaths.dsh = preparedRuntime
@@ -261,6 +265,9 @@ export function createElectronBuilderConfig(
       target: ['AppImage'],
     },
     nsis: {
+      // Shortcut and Apps-list name carry the edition; the executable, install path, and app id stay
+      // the product's, so updates and single-instance ownership keep resolving.
+      shortcutName: 'DeepSeek Harness (HVKeyn Edition)',
       installerSidebar: join(buildPaths.root, 'installer-ui', 'uninstaller-sidebar.bmp'),
       uninstallerSidebar: join(buildPaths.root, 'installer-ui', 'uninstaller-sidebar.bmp'),
       include: fileURLToPath(new URL('./installer.nsh', import.meta.url)),

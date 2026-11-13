@@ -70,7 +70,7 @@ describe('SessionSkillCatalog', () => {
         invocation: { modelInvocable: true, userInvocable: false },
       },
     ]))
-    ctx.provide('skills', { list } as never)
+    ctx.provide('skills', { list, setDisabled: () => {} } as never)
     const catalog = new SessionSkillCatalog(ctx)
 
     await expect(catalog.list({ sessionId }, new AbortController().signal)).resolves.toEqual({
@@ -106,7 +106,7 @@ describe('SessionSkillCatalog', () => {
         })),
       } as never)
       const list = vi.fn(() => Promise.resolve([]))
-      ctx.provide('skills', { list } as never)
+      ctx.provide('skills', { list, setDisabled: () => {} } as never)
       const ensure = vi.spyOn(ctx.workingDirectory, 'ensure')
       const resume = vi.spyOn(ctx.agents, 'resume')
       await expect(new SessionSkillCatalog(ctx).list({ sessionId }, new AbortController().signal))
@@ -136,7 +136,7 @@ describe('SessionSkillCatalog', () => {
     }]))
     const acquireScope = vi.fn()
     ctx.provide('agentPresets', {
-      serviceFor: () => ({ list: scopedList }),
+      serviceFor: () => ({ list: scopedList, setDisabled: () => {} }),
       acquireScope,
     } as never)
     const catalog = new SessionSkillCatalog(ctx)
@@ -167,7 +167,7 @@ describe('SessionSkillCatalog', () => {
     const acquireScope = vi.fn(() => Promise.resolve({ key: scope, [Symbol.asyncDispose]: async () => {} }))
     ctx.provide('agentPresets', { acquireScope } as never)
     const list = vi.fn(() => Promise.resolve([]))
-    ctx.provide('skills', { list } as never)
+    ctx.provide('skills', { list, setDisabled: () => {} } as never)
     const catalog = new SessionSkillCatalog(ctx)
 
     await expect(catalog.list({ sessionId }, new AbortController().signal)).resolves.toEqual({ skills: [] })
@@ -189,7 +189,7 @@ describe('SessionSkillCatalog', () => {
       acquireScope: () => Promise.reject(new Error('unknown preset')),
     } as never)
     const list = vi.fn(() => Promise.resolve([]))
-    ctx.provide('skills', { list } as never)
+    ctx.provide('skills', { list, setDisabled: () => {} } as never)
     const catalog = new SessionSkillCatalog(ctx)
 
     await expect(catalog.list({ sessionId }, new AbortController().signal)).resolves.toEqual({ skills: [] })
@@ -251,6 +251,7 @@ describe('SessionSkillCatalog', () => {
     } as never)
     ctx.provide('skills', {
       list: () => Promise.reject(new Error('catalog offline')),
+      setDisabled: () => {},
     } as never)
     const catalog = new SessionSkillCatalog(ctx)
 

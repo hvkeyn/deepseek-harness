@@ -1,0 +1,843 @@
+{
+  "generatedAt": "2026-10-26",
+  "source": "CEditNeuro 0.99.31 (versionCode 147)",
+  "count": 36,
+  "contract": {
+    "format": "UTF-8 Markdown, one file per skill",
+    "name": "lowercase a-z, 0-9, hyphen; 2-40 chars; starts with a letter",
+    "maxChars": 12000,
+    "trigger": "first line starting with 'Use this' becomes the catalog summary",
+    "tools": "tool names are exact; a skill never adds a tool or permission"
+  },
+  "categories": [
+    {
+      "id": "01-android",
+      "title": "Android и UI",
+      "count": 5
+    },
+    {
+      "id": "02-code-review",
+      "title": "Ревью и отладка кода",
+      "count": 5
+    },
+    {
+      "id": "03-code-understanding",
+      "title": "Понимание программных систем",
+      "count": 3
+    },
+    {
+      "id": "04-security",
+      "title": "Безопасность",
+      "count": 2
+    },
+    {
+      "id": "05-network",
+      "title": "Сеть и удалённые экраны",
+      "count": 3
+    },
+    {
+      "id": "06-media",
+      "title": "Медиа и ASCII",
+      "count": 4
+    },
+    {
+      "id": "07-design",
+      "title": "Дизайн",
+      "count": 1
+    },
+    {
+      "id": "08-research",
+      "title": "Исследование и обучение",
+      "count": 4
+    },
+    {
+      "id": "09-personal",
+      "title": "Личные данные",
+      "count": 3
+    },
+    {
+      "id": "10-language",
+      "title": "Язык",
+      "count": 1
+    },
+    {
+      "id": "11-team",
+      "title": "Команда и harness",
+      "count": 2
+    },
+    {
+      "id": "12-skills",
+      "title": "Управление скиллами",
+      "count": 1
+    },
+    {
+      "id": "13-web",
+      "title": "Web и упаковка",
+      "count": 2
+    }
+  ],
+  "skills": [
+    {
+      "name": "android-apk",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "read an APK before it is trusted",
+      "groups": [
+        "build"
+      ],
+      "tools": [
+        "install_android_sdk",
+        "install_jdk",
+        "install_module",
+        "install_program",
+        "run_command",
+        "grep",
+        "http_request"
+      ],
+      "chars": 6665,
+      "file": "01-android/android-apk.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "01-android",
+      "sha256": "1d39986078d3eca8b1f00a31f5452ad421374fa68b0b5e674a4cc4b0eff3578b"
+    },
+    {
+      "name": "android-app",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a new Android or Kotlin Multiplatform app, a feature, or its architecture",
+      "groups": [
+        "build"
+      ],
+      "tools": [
+        "install_jdk",
+        "install_android_sdk",
+        "run_command",
+        "install_apk",
+        "http_request"
+      ],
+      "requires_skills": [
+        "android-debug",
+        "android-apk"
+      ],
+      "chars": 3077,
+      "file": "01-android/android-app.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "01-android",
+      "sha256": "e26abadab8f06bd3388057fe4d0733e61c19e161774b9f5975d8ffbe55c3f03a"
+    },
+    {
+      "name": "android-compose",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "Jetpack Compose, a screen, Navigation 3, XML migration, edge-to-edge",
+      "groups": [],
+      "tools": [
+        "http_request"
+      ],
+      "chars": 1715,
+      "file": "01-android/android-compose.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "01-android",
+      "sha256": "258185c480f497d9d1b97802910c5ef96ae5d934541732753b925c96e6790cd9"
+    },
+    {
+      "name": "android-debug",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "an app crashes or a phone setting misbehaves",
+      "groups": [
+        "device",
+        "debug"
+      ],
+      "tools": [
+        "device_status",
+        "shizuku_exec",
+        "fetch_system_layout",
+        "execute_system_action",
+        "install_apk",
+        "uninstall_apk",
+        "open_settings",
+        "debug_case",
+        "run_command"
+      ],
+      "requires_skills": [
+        "systematic-debugging"
+      ],
+      "chars": 1942,
+      "file": "01-android/android-debug.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "01-android",
+      "sha256": "1bae93bbe909fde0fa798f565f395de87d9e29eb1497a2479c880c18f81b4adf"
+    },
+    {
+      "name": "android-ui",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "how an Android screen should look",
+      "groups": [],
+      "tools": [
+        "http_request"
+      ],
+      "requires_skills": [
+        "frontend-design"
+      ],
+      "chars": 774,
+      "file": "01-android/android-ui.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "01-android",
+      "sha256": "3ef25966b8d77dfa6e554878ffca3591d3da4cc79fefb19dad9c2c8ce1e7e1e0"
+    },
+    {
+      "name": "debug",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "something fails on a short path",
+      "groups": [],
+      "tools": [],
+      "requires_skills": [
+        "review",
+        "systematic-debugging"
+      ],
+      "chars": 479,
+      "file": "02-code-review/debug.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "02-code-review",
+      "sha256": "20dfd2fcaabc137c713b6ea32843e823ff35600c0d3b5e9260525bc2e90dcb6e"
+    },
+    {
+      "name": "deep-read",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "study a book, note, or scheme in front of you",
+      "groups": [],
+      "tools": [
+        "calculate"
+      ],
+      "chars": 494,
+      "file": "02-code-review/deep-read.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "02-code-review",
+      "sha256": "5ffe736f4978582fecb0cc33467d0975693eab96b14d30991060041b916f56ae"
+    },
+    {
+      "name": "review",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "before saying a code change works",
+      "groups": [],
+      "tools": [
+        "git_diff",
+        "read_file",
+        "run_command"
+      ],
+      "chars": 364,
+      "file": "02-code-review/review.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "02-code-review",
+      "sha256": "28c49918205846fecebe0ca38558e786b5254e10c3d2e371d789b8402aa5cee4"
+    },
+    {
+      "name": "systematic-debugging",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a failure needs a cause before a fix",
+      "groups": [
+        "debug"
+      ],
+      "tools": [
+        "debug_case",
+        "run_command",
+        "read_file",
+        "grep",
+        "git_diff"
+      ],
+      "requires_skills": [
+        "review",
+        "android-debug"
+      ],
+      "chars": 2095,
+      "file": "02-code-review/systematic-debugging.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "02-code-review",
+      "sha256": "03708084bb8563fd313944904ed8f9fe5a071a7c2443d9365d8c54f59621e74f"
+    },
+    {
+      "name": "diff-tour",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a diff must be explained visually or handed off",
+      "groups": [
+        "device"
+      ],
+      "tools": [
+        "git_status",
+        "git_diff",
+        "read_file",
+        "grep",
+        "run_command",
+        "write_file",
+        "open_file",
+        "layout",
+        "load_tools"
+      ],
+      "chars": 8983,
+      "file": "02-code-review/diff-tour.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "02-code-review",
+      "sha256": "9c41906c3c067232ff412ee3249ffa994826d4e1bbf344537e2a9a51aa2843f5"
+    },
+    {
+      "name": "understand-anything",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a repository or docs tree must be understood as a whole",
+      "groups": [
+        "device"
+      ],
+      "tools": [
+        "list_dir",
+        "glob",
+        "read_file",
+        "grep",
+        "run_command",
+        "git_status",
+        "git_diff",
+        "write_file",
+        "open_file",
+        "layout",
+        "load_tools"
+      ],
+      "chars": 11086,
+      "file": "03-code-understanding/understand-anything.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "03-code-understanding",
+      "sha256": "3b4a94f8df451a4084ed8c7846f6ad638e183f357dfed4bf18d7d61367565813"
+    },
+    {
+      "name": "rea",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a software system must be understood with REA 6.8.0 on a PC",
+      "groups": [
+        "remote"
+      ],
+      "tools": [
+        "remote_put",
+        "ssh_exec",
+        "run_command",
+        "read_file",
+        "write_file",
+        "http_request",
+        "load_tools"
+      ],
+      "chars": 6675,
+      "file": "03-code-understanding/rea.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "03-code-understanding",
+      "sha256": "2e21b0f50e57f16945781f2337c0d46234ff0b7a5bb8a2b2b2f6164745be6f63"
+    },
+    {
+      "name": "reverse-engineering",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a program must be understood to its real algorithm or a backdoor",
+      "groups": [
+        "build",
+        "device",
+        "study",
+        "remote"
+      ],
+      "tools": [
+        "install_android_sdk",
+        "install_jdk",
+        "install_module",
+        "install_program",
+        "shizuku_exec",
+        "install_apk",
+        "open_file",
+        "capture_dump",
+        "read_dump",
+        "net_audit",
+        "remote_put",
+        "ssh_exec",
+        "run_command",
+        "read_file",
+        "write_file",
+        "edit_file",
+        "grep",
+        "http_request"
+      ],
+      "requires_skills": [
+        "android-apk"
+      ],
+      "chars": 10747,
+      "file": "03-code-understanding/reverse-engineering.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "03-code-understanding",
+      "sha256": "3169a540907f14c666fa749472f82ab0d84621d93bbc0ce97b63efb20c306493"
+    },
+    {
+      "name": "security",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "the task touches keys, logins, accounts, or another app",
+      "groups": [],
+      "tools": [],
+      "chars": 415,
+      "file": "04-security/security.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "04-security",
+      "sha256": "522390be7e01c534d006271b05cb8f492595f9d1115e03e7df4c0b5235cc6e69"
+    },
+    {
+      "name": "skill-security",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a skill must be checked for vulnerabilities before install",
+      "groups": [
+        "skills"
+      ],
+      "tools": [
+        "scan_skill",
+        "review_skill",
+        "find_skills",
+        "save_skill",
+        "load_tools"
+      ],
+      "chars": 6001,
+      "file": "04-security/skill-security.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "04-security",
+      "sha256": "5abf523cee086892c0626d958dae70a11b7633694e6e9ba338e67cf0af7439ad"
+    },
+    {
+      "name": "net-map",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a network must be drawn from packets",
+      "groups": [
+        "study"
+      ],
+      "tools": [
+        "net_audit",
+        "capture_dump",
+        "read_dump",
+        "research_figure"
+      ],
+      "chars": 5603,
+      "file": "05-network/net-map.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "05-network",
+      "sha256": "1fe024940c70ea2a635038478d237e1f1415da05054a8906f3e7c85819838e68"
+    },
+    {
+      "name": "network-study",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a network concept or topology must be taught with a drawing",
+      "groups": [
+        "study",
+        "device"
+      ],
+      "tools": [
+        "net_audit",
+        "capture_dump",
+        "read_dump",
+        "write_file",
+        "network_card",
+        "open_file",
+        "load_tools"
+      ],
+      "chars": 6531,
+      "file": "05-network/network-study.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "05-network",
+      "sha256": "48bd9e14dec145dc21d7e101f6c02e8c317642402d012c4fe2d990a11eab7d50"
+    },
+    {
+      "name": "second-monitor",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "the phone becomes an extra monitor",
+      "groups": [
+        "remote"
+      ],
+      "tools": [
+        "second_monitor",
+        "remote_connect",
+        "remote_write",
+        "remote_read",
+        "ssh_exec"
+      ],
+      "chars": 1556,
+      "file": "05-network/second-monitor.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "05-network",
+      "sha256": "c26dd93f0ba1e67d817c77824f578b8f6048288afdbad743f85334e737f358a6"
+    },
+    {
+      "name": "hyperframes",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a video, animation, title card, or HyperFrames composition",
+      "groups": [
+        "video"
+      ],
+      "tools": [
+        "render_video",
+        "edit_video",
+        "sound_effect",
+        "make_music",
+        "voiceover",
+        "web_search",
+        "http_request",
+        "write_file",
+        "edit_file"
+      ],
+      "chars": 11930,
+      "file": "06-media/hyperframes.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "06-media",
+      "sha256": "b8dea974336225b562fdff50df6dd5dcb71dd02620b66ebf85eb3ae05cf9f690"
+    },
+    {
+      "name": "video-notes",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "the point of a YouTube or RuTube or Yandex or Dzen video",
+      "groups": [
+        "study"
+      ],
+      "tools": [
+        "video_brief",
+        "calculate"
+      ],
+      "chars": 1679,
+      "file": "06-media/video-notes.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "06-media",
+      "sha256": "c49f9e7bf111d2dd911c77762bfc911afce6ff9bf2977900d13aeb1ff2e35b0e"
+    },
+    {
+      "name": "video-download",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a film, clip, stream, or video page must be saved",
+      "groups": [
+        "video"
+      ],
+      "tools": [
+        "download_video"
+      ],
+      "chars": 1615,
+      "file": "06-media/video-download.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "06-media",
+      "sha256": "7ad6e6e6e8c6383352622e4ea88ea9d030b3cd5c50db10f9b44f051387b724c5"
+    },
+    {
+      "name": "ascii-studio",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a picture, banner, terminal animation, or video must be made in ASCII",
+      "groups": [
+        "video",
+        "device"
+      ],
+      "tools": [
+        "ascii_art",
+        "write_file",
+        "read_file",
+        "open_file",
+        "render_video",
+        "load_tools"
+      ],
+      "chars": 3644,
+      "file": "06-media/ascii-studio.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "06-media",
+      "sha256": "3057d8f4fbf792e1136ec55eabdeac8c9af8d574a79e435dda1788879badba80"
+    },
+    {
+      "name": "frontend-design",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a landing page, cabinet, form, or product screen",
+      "groups": [
+        "design"
+      ],
+      "tools": [
+        "http_request",
+        "write_file",
+        "design_system"
+      ],
+      "requires_skills": [
+        "hyperframes",
+        "web-to-app"
+      ],
+      "chars": 4804,
+      "file": "07-design/frontend-design.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "07-design",
+      "sha256": "599aa886ed408ae1953122fd454eacb817b429f6514e3b29b4de5598bd15a8f7"
+    },
+    {
+      "name": "research",
+      "scope": "app",
+      "origin": "builtin",
+      "trigger": "a study question, a claim to check, a measured build",
+      "groups": [
+        "study"
+      ],
+      "tools": [
+        "research_log",
+        "research_report",
+        "research_figure",
+        "research_plot",
+        "research_run",
+        "reference",
+        "calculate",
+        "chart",
+        "open_file",
+        "http_request",
+        "grep"
+      ],
+      "requires_skills": [
+        "deep-read",
+        "review",
+        "debug",
+        "security"
+      ],
+      "chars": 4340,
+      "file": "08-research/research.md",
+      "source": "ResearchSkill.kt#TEXT",
+      "category": "08-research",
+      "sha256": "6b1887ab7abfa90253672e6cc56e537d4da6d8f895abb7664758399a5e114618"
+    },
+    {
+      "name": "learn",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "learn a subject, be taught, or practice",
+      "groups": [
+        "learn"
+      ],
+      "tools": [
+        "learn",
+        "http_request",
+        "web_search"
+      ],
+      "chars": 2501,
+      "file": "08-research/learn.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "08-research",
+      "sha256": "3d3828226d199f99b2b11d77173e6f1390f6a0c5fd8dfeabfa336dd651465147"
+    },
+    {
+      "name": "book-notes",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "summarize, explain, or quiz from the open book",
+      "groups": [],
+      "tools": [
+        "reader_note",
+        "calculate"
+      ],
+      "chars": 462,
+      "file": "08-research/book-notes.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "08-research",
+      "sha256": "a21f079e874b872e82689e63953be1f45da58878e4e015d236fa22055f0039c3"
+    },
+    {
+      "name": "genealogy",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "family history, ancestors, or archive records in the former USSR",
+      "groups": [
+        "remote"
+      ],
+      "tools": [
+        "write_file",
+        "read_file",
+        "run_command",
+        "http_request",
+        "browse_page",
+        "layout",
+        "load_tools"
+      ],
+      "chars": 6690,
+      "file": "08-research/genealogy.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "08-research",
+      "sha256": "69fe29dc0170d4c03391d55e029d937e467746be16473597bf7abf7e420df751"
+    },
+    {
+      "name": "health",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a lab sheet, scan report, or family health record",
+      "groups": [
+        "health"
+      ],
+      "tools": [
+        "health_log",
+        "health_panel",
+        "health_trend",
+        "health_index"
+      ],
+      "chars": 1361,
+      "file": "09-personal/health.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "09-personal",
+      "sha256": "506274cf2a313bab5ebe4f90be8486c4c8c55313473ec775ed0ab59c27f0e745"
+    },
+    {
+      "name": "dreams",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a dream or nightmare is told and asks to be read",
+      "groups": [],
+      "tools": [
+        "write_file",
+        "edit_file"
+      ],
+      "chars": 4404,
+      "file": "09-personal/dreams.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "09-personal",
+      "sha256": "46863b74efdfa331c341d33594810fdacd8255449ad948b0551fad1673777bb1"
+    },
+    {
+      "name": "photo-ocr",
+      "scope": "app",
+      "origin": "user",
+      "trigger": "a photo arrived and the message has only paths",
+      "groups": [],
+      "tools": [
+        "run_command",
+        "read_file",
+        "remote_delete"
+      ],
+      "chars": 1490,
+      "file": "09-personal/photo-ocr.md",
+      "source": "phone:CEditNeuro/skills/photo-ocr.md",
+      "category": "09-personal",
+      "sha256": "d9243500efcffa356c72fe1b6de524404cfa86925f73c36b71b5fe909b6ce1d0"
+    },
+    {
+      "name": "ru-translate",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "translate into Russian or polish Russian",
+      "groups": [],
+      "tools": [
+        "read_file",
+        "write_file",
+        "edit_file",
+        "run_command",
+        "reader_note",
+        "reference"
+      ],
+      "chars": 4809,
+      "file": "10-language/ru-translate.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "10-language",
+      "sha256": "ab4684d732de12f057aa5a16080d7a1063cb7b49664833998160bd568dc2dfdb"
+    },
+    {
+      "name": "crew",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "other phones are on the link and work can be split",
+      "groups": [
+        "crew"
+      ],
+      "tools": [
+        "crew"
+      ],
+      "chars": 1051,
+      "file": "11-team/crew.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "11-team",
+      "sha256": "03274b04689cb28ba6c5d62f66f651f7ac5d4fc9853d6de5fd2d2858899b858c"
+    },
+    {
+      "name": "rrsi",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "improve the agent's own harness",
+      "groups": [
+        "harness"
+      ],
+      "tools": [
+        "harness_rrsi",
+        "delete_skill"
+      ],
+      "chars": 1749,
+      "file": "11-team/rrsi.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "11-team",
+      "sha256": "1d86b534157ccc3373d23aaf0932b66596008a3f7f5e5183e57e6d7ca27f6f4f"
+    },
+    {
+      "name": "find-skills",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "find or install a skill for a task",
+      "groups": [
+        "skills"
+      ],
+      "tools": [
+        "find_skills",
+        "review_skill",
+        "save_skill"
+      ],
+      "chars": 960,
+      "file": "12-skills/find-skills.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "12-skills",
+      "sha256": "6e3f2ce325880b1dfad0c3b6697915cee30fdc9ee08bbdba636baf9aea007fee"
+    },
+    {
+      "name": "web-reach",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "read a link, page, article, repo, thread, or feed",
+      "groups": [
+        "study"
+      ],
+      "tools": [
+        "http_request",
+        "web_search",
+        "video_brief"
+      ],
+      "requires_skills": [
+        "video-notes"
+      ],
+      "chars": 3454,
+      "file": "13-web/web-reach.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "13-web",
+      "sha256": "1f5dcb48eb543e901151280a6bc451f25fc817dadc81a55c5bedc3f73eae895c"
+    },
+    {
+      "name": "web-to-app",
+      "scope": "app",
+      "origin": "starter",
+      "trigger": "a website or HTML file must become an Android app",
+      "groups": [
+        "device"
+      ],
+      "tools": [
+        "web_to_app",
+        "install_apk"
+      ],
+      "chars": 793,
+      "file": "13-web/web-to-app.md",
+      "source": "ResearchSkill.kt#StarterSkills",
+      "category": "13-web",
+      "sha256": "c25a3e904afc9909026eb0b484d5247d36bcd41a769d46c16ee122b83ebba3cf"
+    }
+  ]
+}

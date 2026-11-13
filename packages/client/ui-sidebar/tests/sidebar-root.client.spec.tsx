@@ -67,6 +67,7 @@ function mountShell({ collapsed = false, width = 300, shortcuts = [] }: {
           settingsOwner = owner
           return <div data-testid="settings-seat" data-wide={owner.wide} />
         }
+        if (key === 'sidebar.panellist.actions') return null
         if (key === 'sidebar.footer.action') {
           footerActionOwner = owner
           return <div data-testid="footer-action-seat" data-wide={owner.wide} />

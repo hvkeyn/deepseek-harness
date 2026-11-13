@@ -12,6 +12,9 @@ import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { SessionSeq, type UserMessage } from '@deepseek-ai/dsh-session'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import {
   escapeText,
   isModelInvocable,
@@ -26,6 +29,8 @@ export const name = 'tool-skill'
 export const inject = ['agents', 'tools', 'skills', 'workingDirectory']
 
 const DEFAULT_CATALOG_DESCRIPTION_MAX_LENGTH = 500
+/** Ceiling for the instructions one session receives automatically, in characters. */
+const AUTO_ATTACH_MAX_BYTES = 48_000
 /**
  * Durable provider and item records for one published session skill catalog. The catalog is a
  * `catalog`-form context, so it records the entries it published beside the
@@ -219,6 +224,36 @@ export function apply(ctx: Context, config: Config = {}): void {
     const decision = await next()
     if (decision.kind === 'reject') return decision
     signal.throwIfAborted()
+
+    // Automatic attachment runs before the catalog so the instructions and the
+    // names that justify them reach the same step. A skill already carried by a
+    // `/name` gesture or an earlier attachment is skipped, and the ceiling keeps
+    // one session from absorbing every local skill.
+    if (readAutoAttach()) {
+      const cwd = await ctx.workingDirectory.ensure(agent, signal)
+      const lookup = { cwd, signal, scope: agent }
+      const snapshotAuto = await ctx.skills.snapshot(lookup)
+      const already = attachedSkillNames(agent)
+      const injections: UserMessage[] = []
+      let budget = AUTO_ATTACH_MAX_BYTES
+      for (const skill of snapshotAuto.skills.filter(isModelInvocable)) {
+        if (already.has(skill.name) || budget <= 0) continue
+        const definition = await ctx.skills.get(skill.name, lookup)
+        signal.throwIfAborted()
+        if (definition === undefined) continue
+        const text = renderSkillContent(definition)
+        if (text.length > budget) continue
+        budget -= text.length
+        injections.push(createUserMessage({
+          content: [{ type: 'text', text }],
+          source: { kind: 'skill-invocation', name: skill.name, form: 'instructions' },
+        }))
+      }
+      if (injections.length > 0) {
+        return { ...decision, messages: [...decision.messages, ...injections] }
+      }
+    }
+
     const toolVisible = ctx.tools.get(skillTool.name, agent) === skillTool
     const snapshot = toolVisible
       ? await ctx.skills.snapshot({ cwd: await ctx.workingDirectory.ensure(agent, signal), signal, scope: agent })
@@ -358,6 +393,41 @@ function readCatalogEntries(source: unknown): SkillCatalogSource['entries'] | un
     readable.push({ name, description })
   }
   return readable
+}
+
+/**
+ * Read the automatic-attachment preference stored beside the user's skill root.
+ * @returns whether enabled skills should be attached to a Session without a gesture.
+ */
+function readAutoAttach(): boolean {
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(join(resolveDshHome(), 'skills.json'), 'utf8'))
+    return typeof parsed === 'object' && parsed !== null
+      && (parsed as { autoAttach?: unknown }).autoAttach === true
+  } catch (error: unknown) {
+    // Attachment is a preference, not a precondition: an unreadable file leaves it off.
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      return false
+    }
+    return false
+  }
+}
+
+/**
+ * Collect the skills whose full instructions this Session already carries.
+ * @param agent - Session owner whose history is scanned.
+ * @returns skill names injected by a `/name` gesture or an earlier attachment.
+ */
+function attachedSkillNames(agent: Agent): Set<string> {
+  const names = new Set<string>()
+  for (let index = agent.session.seq - 1; index >= 0; index -= 1) {
+    // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
+    const event = agent.session.eventAt(SessionSeq(index))
+    if (event?.type !== 'user/message') continue
+    if (event.data.source.kind !== 'skill-invocation') continue
+    names.add(event.data.source.name)
+  }
+  return names
 }
 
 function catalogHistory(agent: Agent): { visibleDigest?: string; published: boolean } {

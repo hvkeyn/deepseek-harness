@@ -1,4 +1,7 @@
 /** Browser entry for the Web client. */
+// Installs runtime built-ins the client calls but ES2022 browsers lack; it must
+// evaluate before every other import in this entry.
+import './compat.ts'
 import '@deepseek-ai/dsh-client-ui-theme/brand-font.css'
 import { AppWebEntry, applyIndexInjections } from '@deepseek-ai/dsh-client-web'
 

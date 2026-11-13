@@ -18,7 +18,9 @@ function div(className: string | undefined, text?: string): HTMLDivElement {
 export class BootPage {
   private readonly root: HTMLDivElement
   private readonly card: HTMLDivElement
+  private readonly brand: HTMLDivElement
   private readonly wordmark: HTMLDivElement
+  private readonly edition: HTMLDivElement
   private readonly spinner: HTMLDivElement
   private readonly hint: HTMLDivElement
   private readonly states = new Map<string, LoaderEntryState>()
@@ -34,11 +36,16 @@ export class BootPage {
     this.root = div(css.boot)
     this.root.dataset.dshBoot = ''
     this.card = div(css.card)
+    this.brand = div(css.brand)
     this.wordmark = div(css.wordmark, 'HARNESS')
+    // The boot page runs before plugin delivery, so this deployment mark is fixed content here
+    // rather than locale-owned copy like the rest of the interface.
+    this.edition = div(css.edition, 'HVKeyn Edition')
+    this.brand.append(this.wordmark, this.edition)
     this.spinner = div(css.spinner)
     this.spinner.dataset.dshBootSpinner = ''
     this.hint = div(css.hint, 'Loading plugins…')
-    this.card.append(this.wordmark, this.spinner, this.hint)
+    this.card.append(this.brand, this.spinner, this.hint)
     this.root.append(this.card)
     container.append(this.root)
     this.updateProgress()
@@ -84,7 +91,7 @@ export class BootPage {
     const failed = [...this.states].filter(([, state]) => state === 'failed').map(([id]) => id)
     if (this.failure === undefined && failed.length === 0) {
       if (this.spinner.parentElement !== this.card) {
-        this.card.replaceChildren(this.wordmark, this.spinner, this.hint)
+        this.card.replaceChildren(this.brand, this.spinner, this.hint)
       }
       return
     }
@@ -92,7 +99,7 @@ export class BootPage {
     report.append(div(css.failedTitle, 'Failed to load plugins'))
     for (const id of failed) report.append(div(css.failedItem, id))
     if (this.failure !== undefined) report.append(div(css.failedItem, this.failure))
-    this.card.replaceChildren(this.wordmark, report)
+    this.card.replaceChildren(this.brand, report)
   }
 
   /** Grow the rotating arc monotonically as loader entries activate. */

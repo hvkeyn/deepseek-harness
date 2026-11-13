@@ -1,0 +1,16 @@
+# Opt-in reference for REA 6.8.0 (https://github.com/morluto/rea).
+#
+# REA is a third-party MCP server for reverse engineering. DSH does not download
+# it: run `npx rea-agents@6.8.0 setup` once (or `npm install --global rea-agents`)
+# and approve the registration, then start DSH with this overlay. Its tools appear
+# as `mcp__rea__<tool>`. Native providers (Ghidra, JADX, firmware tools) need their
+# own setup before the analysis commands work.
+- insert:
+    - id: mcp-rea
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: rea
+        transport: stdio
+        command: npx
+        args: ['-y', 'rea-agents@6.8.0', 'mcp']
+        cwd: !!js process.cwd()

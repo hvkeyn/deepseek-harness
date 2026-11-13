@@ -1269,4 +1269,30 @@ describe('SkillRegistry scoped layers', () => {
     expect(await ctx.skills.list({ scope })).toEqual([])
     await preset.dispose()
   })
+
+  it('withholds disabled skills from the catalog and from loading until re-enabled', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SkillRegistry)
+    const provider = new MemoryProvider([memorySkill('kept', 'Kept', 10), memorySkill('hidden', 'Hidden', 20)])
+    registerProvider(ctx, provider)
+    const changes: string[] = []
+    ctx.on('skills/change', () => { changes.push('changed') })
+
+    expect((await ctx.skills.list()).map(skill => skill.name)).toEqual(['hidden', 'kept'])
+
+    ctx.skills.setDisabled(['hidden'])
+    expect(ctx.skills.disabledSkills).toEqual(['hidden'])
+    expect((await ctx.skills.list()).map(skill => skill.name)).toEqual(['kept'])
+    expect(await ctx.skills.get('hidden')).toBeUndefined()
+    expect((await ctx.skills.get('kept'))?.name).toBe('kept')
+    expect(changes).not.toEqual([])
+
+    // Repeating the same set is not a change and must not notify again.
+    const before = changes.length
+    ctx.skills.setDisabled(['hidden'])
+    expect(changes).toHaveLength(before)
+
+    ctx.skills.setDisabled([])
+    expect((await ctx.skills.list()).map(skill => skill.name)).toEqual(['hidden', 'kept'])
+  })
 })

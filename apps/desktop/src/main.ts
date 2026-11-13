@@ -2,6 +2,7 @@ import type { ProductEventMap, ProductEvent } from '@deepseek-ai/dsh-client-prod
 import { WINDOWS_TITLEBAR_HEIGHT } from './windows-layout.ts'
 /** Electron shell: desktop project ownership, custom protocol, windows, and lifecycle. */
 
+import { readFileSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -79,6 +80,30 @@ let windowsLanguage: string | undefined
 let backendReady = false
 /** Error-level console output of the primary window, attached to crash reports. */
 const rendererConsole = new RendererConsoleTail()
+
+/**
+ * Read the build facts the packaged manifest records, so About and update dialogs can name the
+ * commit and channel they belong to. A missing or unreadable manifest leaves the fields absent.
+ * @returns recorded commit and update channel, when the manifest carries them.
+ */
+function packagedBuildFacts(): { commit?: string, channel?: string } {
+  try {
+    const manifest = JSON.parse(readFileSync(join(app.getAppPath(), 'package.json'), 'utf8')) as {
+      dshBuildCommit?: unknown
+      dshDesktopUpdateChannel?: unknown
+    }
+    return {
+      ...(typeof manifest.dshBuildCommit === 'string' ? { commit: manifest.dshBuildCommit } : {}),
+      ...(typeof manifest.dshDesktopUpdateChannel === 'string' ? { channel: manifest.dshDesktopUpdateChannel } : {}),
+    }
+  }
+  catch (error) {
+    // A development checkout has no packaged manifest; only a packaged one that
+    // cannot be read is worth a diagnostic.
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') console.warn('desktop: packaged manifest is unavailable', error)
+    return {}
+  }
+}
 
 // Platform-conventional logs directory (macOS ~/Library/Logs/<name>, otherwise under userData);
 // set before ready so the first fatal report already resolves under it.
@@ -385,8 +410,17 @@ async function main(): Promise<void> {
   // Copy comes from the same locale as the update prompts so the dialog
   // chrome and its content never mix languages.
   const showAbout = async (): Promise<void> => {
-    await ordinaryMessageBox({ type: 'info', title: locale.messages.aboutMenu, message: locale.messages.aboutProduct,
-      detail: formatDesktopMessage(locale.messages.aboutVersion, { version: app.getVersion() }),
+    const facts = packagedBuildFacts()
+    const details = [formatDesktopMessage(locale.messages.aboutVersion, { version: app.getVersion() })]
+    if (facts.commit !== undefined) {
+      details.push(formatDesktopMessage(locale.messages.aboutBuild, {
+        commit: facts.commit, platform: process.platform, arch: process.arch,
+      }))
+    }
+    details.push(formatDesktopMessage(locale.messages.aboutChannel, { channel: facts.channel ?? 'nightly' }))
+    await ordinaryMessageBox({ type: 'info', title: locale.messages.aboutMenu,
+      message: `${locale.messages.aboutProduct} · ${locale.messages.editionName}`,
+      detail: details.join('\n'),
       buttons: [locale.messages.updateAcknowledge], cancelId: 0 })
   }
   const commandManager = new DesktopCommandManager({
@@ -831,9 +865,14 @@ async function main(): Promise<void> {
         if (isMandatory()) { mandatoryUI?.focus(); return }
         if (state.phase === 'error' && state.failedOperation === 'check') { await showUpdateFailure(state); return }
         if (state.phase === 'idle') {
+          const facts = packagedBuildFacts()
           await ordinaryMessageBox({ type: 'info', title: locale.messages.updateCheckTitle,
             message: locale.messages.updateCurrent,
-            detail: formatDesktopMessage(locale.messages.updateCurrentDetail, { version: app.getVersion() }) })
+            detail: [
+              formatDesktopMessage(locale.messages.updateCurrentDetail, { version: app.getVersion() }),
+              formatDesktopMessage(locale.messages.updateEdition, { edition: locale.messages.editionName }),
+              formatDesktopMessage(locale.messages.updateChannel, { channel: facts.channel ?? 'nightly' }),
+            ].join('\n') })
           return
         }
         if (state.phase === 'ready' || (state.phase === 'error' && state.failedOperation === 'install')) {
@@ -847,7 +886,11 @@ async function main(): Promise<void> {
         if (manual) {
           const result = await ordinaryMessageBox({ title: locale.messages.updateCheckTitle,
             message: formatDesktopMessage(locale.messages.updateAvailable, { version: state.version ?? '' }),
-            detail: locale.messages.updateDetail,
+            detail: [
+              locale.messages.updateDetail,
+              formatDesktopMessage(locale.messages.updateEdition, { edition: locale.messages.editionName }),
+              formatDesktopMessage(locale.messages.updateChannel, { channel: packagedBuildFacts().channel ?? 'nightly' }),
+            ].join('\n'),
             buttons: [locale.messages.updateDownload], cancelId: 1 })
           if (result.response !== 0) return
         }
@@ -931,12 +974,20 @@ async function main(): Promise<void> {
 
   const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')
     : join(process.resourcesPath, 'icon.png')
+  const aboutFacts = packagedBuildFacts()
   app.setAboutPanelOptions({
-    applicationName: 'DeepSeek Harness',
+    applicationName: `${locale.messages.aboutProduct} · ${locale.messages.editionName}`,
     applicationVersion: app.getVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
     copyright: '',
+    // macOS renders credits under the version line: the edition, the packed commit
+    // when the manifest records one, and the update channel this build follows.
+    credits: [
+      locale.messages.editionName,
+      ...(aboutFacts.commit === undefined ? [] : [`build ${aboutFacts.commit}`]),
+      `channel ${aboutFacts.channel ?? 'nightly'}`,
+    ].join(' · '),
     iconPath: applicationIconPath,
   })
   // A custom application menu replaces Electron's default menu, so macOS needs

@@ -48,6 +48,7 @@ import type {} from '@deepseek-ai/dsh-client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { AttachedSkills } from './AttachedSkills.tsx'
 import { SkillRow } from './SkillRow.tsx'
 import { SkillReference, type SkillReferenceInjected } from './SkillReference.tsx'
 import { skillReferenceRule } from './user-text-rules.ts'
@@ -93,6 +94,22 @@ export function apply(ctx: ClientContext): void {
 
   const skills = ctx.remote.skills
   const sessions = ctx.sessions
+
+  // The dock reports what the Session actually applied, not what is merely
+  // installed: a skill appears here after a `/name` gesture or automatic
+  // attachment wrote its instructions into the log.
+  const activeLoad = (sessionId: SessionId) => async (): Promise<{ names: readonly string[] }> => {
+    const result = await skills.activeSkills({ sessionId })
+    if (!result.ok) throw new Error(`skills/activeSkills failed: ${result.error.code}: ${result.error.message}`)
+    return { names: result.value.names }
+  }
+  ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
+    name: 'conversation.composer.dock',
+    id: 'attached-skills',
+    order: 5,
+    locale: NS,
+    inject: (sessionId: SessionId) => ({ load: activeLoad(sessionId) }),
+  }, AttachedSkills))
   // Session-keyed catalog cache; single-flight per key. Plugin-closure state:
   // the fiber effect below is its teardown boundary.
   const fetches = new Map<SessionId, CatalogFetch>()
