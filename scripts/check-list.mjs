@@ -1,0 +1,13 @@
+import { chromium } from 'file:///C:/PROJECTS/DeepSeekHarness/node_modules/.pnpm/playwright@1.61.1/node_modules/playwright/index.mjs'
+const browser = await chromium.launch({ channel: 'msedge' })
+const page = await browser.newPage({ viewport: { width: 1280, height: 760 } })
+await page.goto(process.argv[2], { waitUntil: 'domcontentloaded' })
+await page.waitForTimeout(13000)
+await page.evaluate(() => { const p = /Skills|\u0421\u043a\u0438\u043b\u043b\u044b/; const e = Array.from(document.querySelectorAll('button, [role=button]')).find(c => p.test(c.getAttribute('aria-label') || c.textContent || '')); if (e) e.click() })
+await page.waitForTimeout(4000)
+const rows = await page.evaluate(() => Array.from(document.querySelectorAll('li')).map(li => li.innerText.split('\n')[0]).filter(Boolean))
+console.log('list rows:', JSON.stringify(rows.slice(0, 14)))
+const hasUserSkill = await page.evaluate(() => Array.from(document.querySelectorAll('li')).some(li => /debug/.test(li.innerText) && /\u0423\u0434\u0430\u043b\u0438\u0442\u044c/.test(li.innerText)))
+console.log('user skill listed with delete:', hasUserSkill)
+await page.screenshot({ path: 'C:/PROJECTS/HVKeyn-Edition/list-fixed.png' })
+await browser.close()

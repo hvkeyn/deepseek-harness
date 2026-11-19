@@ -11,6 +11,9 @@ import type {} from '@deepseek-ai/dsh-plugin-manager/types'
 import type {} from '@deepseek-ai/dsh-plugin-market/types'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 import { DiscoverSection } from './DiscoverSection.tsx'
+import { EntryMenu, type EntryMenuFace } from './EntryMenu.tsx'
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type { StartSessionOptions } from '@deepseek-ai/dsh-client-ui-workspace/client'
 import { en, zh, type PluginMarketLocaleKey } from './locales.ts'
 import { DiscoverController } from './market-store.ts'
 
@@ -51,4 +54,18 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('plugins.tab', () => ctx.slots.register({
     name: 'plugins.tab', id: 'discover', label: () => t('title'), locale: NS, inject: () => face,
   }, DiscoverSection))
+
+  // The sidebar footer menu pairs the market with plugin authoring: the official
+  // edition keeps the same two entries in its More menu.
+  const menu: EntryMenuFace = {
+    browsePlugins: () => { ctx.get('pluginNavigation')?.openDiscover() },
+    addPlugin: () => { ctx.get('pluginNavigation')?.openInstall() },
+    createPlugin: () => {
+      const options: StartSessionOptions = { agentPreset: 'cordis', prompt: t('menu.prompt'), clearPreviousDraft: true }
+      ctx.get('uiWorkspace')?.startSession(undefined, options)
+    },
+  }
+  ctx.slots.inject('sidebar.panellist.actions', () => ctx.slots.register({
+    name: 'sidebar.panellist.actions', id: 'entry-customization', locale: NS, inject: () => menu,
+  }, EntryMenu))
 }

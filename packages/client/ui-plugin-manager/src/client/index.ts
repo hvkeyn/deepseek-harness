@@ -40,6 +40,10 @@ declare module '@deepseek-ai/cordis' {
        * @param packageName - npm package name of the bundle.
        */
       openBundle(packageName: string): void
+      /** Open the Plugins panel on the market tab, showing the installed tab when no market is composed. */
+      openDiscover(): void
+      /** Open the Plugins panel with the install dialog ready for a package spec. */
+      openInstall(): void
     }
   }
 }
@@ -137,6 +141,17 @@ export function apply(ctx: ClientContext): void {
         ctx.layout.selectPanel(PANEL_ID)
         instance.actions.setTab('installed')
         instance.actions.setView({ kind: 'package', name: packageName })
+      },
+      openDiscover: () => {
+        ctx.layout.selectPanel(PANEL_ID)
+        instance.actions.setView({ kind: 'list' })
+        instance.actions.setTab('discover')
+      },
+      openInstall: () => {
+        ctx.layout.selectPanel(PANEL_ID)
+        instance.actions.setView({ kind: 'list' })
+        instance.actions.setTab('installed')
+        face.openInstall()
       },
     })
     yield () => { void disposeNavigation() }

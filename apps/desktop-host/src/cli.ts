@@ -1,5 +1,6 @@
 /** Public dsh commands using the immutable runtime carried by the Desktop installation. */
 
+import { existsSync } from 'node:fs'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { runCli } from '@deepseek-ai/dsh/lib/bin.js'
 import { installOfficeEngineResolution, runtimeArchivePath } from './office-engine.ts'
@@ -32,5 +33,8 @@ if (import.meta.main) {
     await installWindowsCliSignals()
   }
   const runtimeDir = resolve(import.meta.dirname, '../../../..')
-  await runDesktopCli(runtimeDir, join(dirname(runtimeArchivePath(runtimeDir) ?? runtimeDir), 'runtime'))
+  const sibling = join(dirname(runtimeArchivePath(runtimeDir) ?? runtimeDir), 'runtime')
+  // A packaged application keeps the runtime in its resources directory; an
+  // unpacked app tree (asar disabled) keeps it beside the app directory.
+  await runDesktopCli(runtimeDir, existsSync(sibling) ? sibling : join(dirname(dirname(runtimeDir)), 'runtime'))
 }

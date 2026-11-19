@@ -5,10 +5,11 @@
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "DeepSeek Harness",
+      "applicationName": "DeepSeek Harness · HVKeyn Edition",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
+      "credits": "HVKeyn Edition · channel nightly",
       "iconPath": "<app icon>"
     }
   },
@@ -18,10 +19,11 @@
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "DeepSeek Harness",
+      "applicationName": "DeepSeek Harness · HVKeyn Edition",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
+      "credits": "HVKeyn Edition · channel nightly",
       "iconPath": "<app icon>"
     }
   },
@@ -31,10 +33,11 @@
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "DeepSeek Harness",
+      "applicationName": "DeepSeek Harness · HVKeyn Edition",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
+      "credits": "HVKeyn Edition · channel nightly",
       "iconPath": "<app icon>"
     }
   },
@@ -44,10 +47,11 @@
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "DeepSeek Harness",
+      "applicationName": "DeepSeek Harness · HVKeyn Edition",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
+      "credits": "HVKeyn Edition · channel nightly",
       "iconPath": "<app icon>"
     }
   }

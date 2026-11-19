@@ -555,8 +555,10 @@ describe('desktop main startup', () => {
     await vi.advanceTimersByTimeAsync(0)
     const zh = locale === 'zh-CN'
     expect(harness.dialog.showMessageBox).toHaveBeenLastCalledWith(expect.objectContaining({
-      type: 'info', title: zh ? '关于 DeepSeek Harness' : 'About DeepSeek Harness', message: 'DeepSeek Harness',
-      detail: zh ? '版本 V1.0.0' : 'Version V1.0.0', buttons: [zh ? '确定' : 'OK'], cancelId: 0,
+      type: 'info', title: zh ? '关于 DeepSeek Harness' : 'About DeepSeek Harness',
+      message: 'DeepSeek Harness · HVKeyn Edition',
+      detail: (zh ? ['版本 V1.0.0', '更新通道：nightly'] : ['Version V1.0.0', 'Update channel: nightly']).join('\n'),
+      buttons: [zh ? '确定' : 'OK'], cancelId: 0,
     }))
     // A dialog that cannot open is logged, not surfaced as an unhandled rejection.
     harness.dialog.showMessageBox.mockRejectedValueOnce(new Error('overlay unavailable'))
@@ -1600,7 +1602,8 @@ describe('desktop main startup', () => {
     await prompt
     expect(signal.aborted).toBe(true)
     expect(harness.dialog.showMessageBox).toHaveBeenLastCalledWith(expect.objectContaining({
-      message: 'You’re up to date!', detail: 'Current version: 1.0.0',
+      message: 'You’re up to date!',
+      detail: ['Current version: 1.0.0', 'Edition: HVKeyn Edition', 'Update channel: nightly'].join('\n'),
     }))
   })
 

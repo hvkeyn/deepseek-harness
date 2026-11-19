@@ -1,0 +1,488 @@
+{
+  "format": 1,
+  "title": {
+    "en": "HVKeyn Edition plugins",
+    "ru": "Плагины HVKeyn Edition",
+    "zh": "HVKeyn Edition 插件"
+  },
+  "description": {
+    "en": "Experimental bundles shipped with this fork; install from the Discover tab.",
+    "ru": "Экспериментальные плагины этой сборки; установка со вкладки «Обзор».",
+    "zh": "此分支的实验性插件；在「发现」标签页安装。"
+  },
+  "metadata": {
+    "categories": {},
+    "labels": {},
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "@deepseek-ai/dsh-experimental-agent-team-profile",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-agent-team-profile",
+        "ru": "@deepseek-ai/dsh-experimental-agent-team-profile",
+        "zh": "@deepseek-ai/dsh-experimental-agent-team-profile"
+      },
+      "description": {
+        "en": "Agent Teams collaboration, tools, and Web UI in one experimental bundle",
+        "ru": "Agent Teams collaboration, tools, and Web UI in one experimental bundle",
+        "zh": "Agent Teams collaboration, tools, and Web UI in one experimental bundle"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/agent-team-profile"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/agent-team-profile"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-auto-review",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-auto-review",
+        "ru": "@deepseek-ai/dsh-experimental-auto-review",
+        "zh": "@deepseek-ai/dsh-experimental-auto-review"
+      },
+      "description": {
+        "en": "Per-tool LLM authorization review for the DeepSeek Harness Auto permission preset",
+        "ru": "Per-tool LLM authorization review for the DeepSeek Harness Auto permission preset",
+        "zh": "Per-tool LLM authorization review for the DeepSeek Harness Auto permission preset"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/auto-review"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/auto-review"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-badge-skill-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-badge-skill-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-badge-skill-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-badge-skill-bundle"
+      },
+      "description": {
+        "en": "Let agents add a “powered by dsh” badge to documents, pull requests, and other outputs.",
+        "ru": "Let agents add a “powered by dsh” badge to documents, pull requests, and other outputs.",
+        "zh": "Let agents add a “powered by dsh” badge to documents, pull requests, and other outputs."
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/badge-skill-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/badge-skill-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-cot-translation-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-cot-translation-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-cot-translation-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-cot-translation-bundle"
+      },
+      "description": {
+        "en": "Experimental machine translation of expanded reasoning",
+        "ru": "Experimental machine translation of expanded reasoning",
+        "zh": "Experimental machine translation of expanded reasoning"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/cot-translation-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/cot-translation-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-inspector-profile",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-inspector-profile",
+        "ru": "@deepseek-ai/dsh-experimental-inspector-profile",
+        "zh": "@deepseek-ai/dsh-experimental-inspector-profile"
+      },
+      "description": {
+        "en": "Optional Web bundle for raw Session logs and Chat node inspection",
+        "ru": "Optional Web bundle for raw Session logs and Chat node inspection",
+        "zh": "Optional Web bundle for raw Session logs and Chat node inspection"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/inspector-profile"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/inspector-profile"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-plugin-market-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-plugin-market-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-plugin-market-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-plugin-market-bundle"
+      },
+      "description": {
+        "en": "Experimental custom plugin markets: a Discover tab that browses and installs bundles from plugin market indexes",
+        "ru": "Experimental custom plugin markets: a Discover tab that browses and installs bundles from plugin market indexes",
+        "zh": "Experimental custom plugin markets: a Discover tab that browses and installs bundles from plugin market indexes"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/plugin-market-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/plugin-market-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-ralph-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-ralph-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-ralph-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-ralph-bundle"
+      },
+      "description": {
+        "en": "Run explicitly requested repeated work with fresh agents.",
+        "ru": "Run explicitly requested repeated work with fresh agents.",
+        "zh": "Run explicitly requested repeated work with fresh agents."
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/ralph-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/ralph-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-session-search",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-session-search",
+        "ru": "@deepseek-ai/dsh-experimental-session-search",
+        "zh": "@deepseek-ai/dsh-experimental-session-search"
+      },
+      "description": {
+        "en": "Give Agents tools to search and read earlier sessions from the current workspace.",
+        "ru": "Give Agents tools to search and read earlier sessions from the current workspace.",
+        "zh": "Give Agents tools to search and read earlier sessions from the current workspace."
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/session-search"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/session-search"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-session-titles-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-session-titles-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-session-titles-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-session-titles-bundle"
+      },
+      "description": {
+        "en": "Refresh session titles as new human prompts arrive.",
+        "ru": "Refresh session titles as new human prompts arrive.",
+        "zh": "Refresh session titles as new human prompts arrive."
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/session-titles-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/session-titles-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-terminal-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-terminal-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-terminal-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-terminal-bundle"
+      },
+      "description": {
+        "en": "Keep shell processes alive across tool calls.",
+        "ru": "Keep shell processes alive across tool calls.",
+        "zh": "Keep shell processes alive across tool calls."
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/terminal-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/terminal-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-tool-worktree",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-tool-worktree",
+        "ru": "@deepseek-ai/dsh-experimental-tool-worktree",
+        "zh": "@deepseek-ai/dsh-experimental-tool-worktree"
+      },
+      "description": {
+        "en": "Model tool that creates and enters a new Git worktree",
+        "ru": "Model tool that creates and enters a new Git worktree",
+        "zh": "Model tool that creates and enters a new Git worktree"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/tool-worktree"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/tool-worktree"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@deepseek-ai/dsh-experimental-voice-input-bundle",
+      "title": {
+        "en": "@deepseek-ai/dsh-experimental-voice-input-bundle",
+        "ru": "@deepseek-ai/dsh-experimental-voice-input-bundle",
+        "zh": "@deepseek-ai/dsh-experimental-voice-input-bundle"
+      },
+      "description": {
+        "en": "Experimental voice input with local SenseVoice; downloads its runtime on first use",
+        "ru": "Experimental voice input with local SenseVoice; downloads its runtime on first use",
+        "zh": "Experimental voice input with local SenseVoice; downloads its runtime on first use"
+      },
+      "author": "HVKeyn Edition",
+      "homepage": "https://github.com/hvkeyn/deepseek-harness",
+      "repository": {
+        "url": "https://github.com/hvkeyn/deepseek-harness",
+        "directory": "packages/experimental/voice-input-bundle"
+      },
+      "metadata": {
+        "keywords": [],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.3.2",
+          "publishTimestamp": 1794069531,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/hvkeyn/deepseek-harness",
+            "commit": "89dfba9b6e68347028004bed7bc68c6ecb4ba78f",
+            "path": "packages/experimental/voice-input-bundle"
+          },
+          "engines": {
+            "dsh": ">=0.2.0"
+          }
+        }
+      ]
+    }
+  ]
+}

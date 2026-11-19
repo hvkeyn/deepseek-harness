@@ -1,0 +1,42 @@
+/* Connection chip: a small state dot and label in the session header. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
+  cursor: default;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dsw-alias-label-tertiary);
+}
+
+.chip[data-mode='online'] .dot {
+  background: #2f9e44;
+}
+
+.chip[data-mode='slow'] .dot {
+  background: #e8a33d;
+}
+
+.chip[data-mode='offline'] .dot {
+  background: #d64545;
+}
+
+.chip[data-mode='offline'] {
+  color: var(--dsw-alias-label-primary);
+}
+
+.label {
+  font-variant-numeric: tabular-nums;
+}

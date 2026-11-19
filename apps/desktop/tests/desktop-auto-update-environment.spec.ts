@@ -11,6 +11,22 @@ import {
 const RELEASE_ID = '0123456789abcdef0123456789abcdef'
 
 describe('desktop auto-update environment', () => {
+  it('accepts an explicit feed location for a fork that hosts its own releases', () => {
+    const update = resolveDesktopAutoUpdateConfig({
+      DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
+      DSH_DESKTOP_UPDATE_FEED_URL: 'https://github.com/hvkeyn/deepseek-harness/releases/latest/download',
+    }, 'win32', 'x64')
+    expect(update.publicUrl).toBe('https://github.com/hvkeyn/deepseek-harness/releases/latest/download/')
+    expect(update.channel).toBe('nightly')
+  })
+
+  it.each(['http://example.com/feed', 'https://user:secret@example.com/feed', 'https://example.com/feed?channel=nightly'])(
+    'rejects explicit feed location %s', (value) => {
+      expect(() => resolveDesktopAutoUpdateConfig({
+        DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
+        DSH_DESKTOP_UPDATE_FEED_URL: value,
+      }, 'win32', 'x64')).toThrow(/FEED_URL/u)
+    })
   it.each([undefined, 'test'])('requires a release ID for deployment %s', (deployment) => {
     const environment = { DSH_DESKTOP_AUTO_UPDATE_ENV: deployment, DOWNLOAD_TEST_ORIGIN: 'https://updates.example.com',
       DOWNLOAD_TEST_COS_BUCKET: 'test-bucket' }

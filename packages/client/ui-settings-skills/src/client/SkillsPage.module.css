@@ -1,0 +1,12 @@
+/* Main-panel page: the list scrolls inside the panel, like the plugins page. */
+
+.page {
+  height: 100%;
+  overflow: auto;
+  padding: 16px 20px;
+  box-sizing: border-box;
+}
+
+.page > section {
+  max-width: 980px;
+}

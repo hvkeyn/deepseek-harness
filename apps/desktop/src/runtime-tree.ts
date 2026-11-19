@@ -89,7 +89,12 @@ export function inventoryDesktopRuntime(root: string): DesktopRuntimeFile[] {
     .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
 }
 
-async function inventoryRuntimeForVerification(root: string): Promise<DesktopRuntimeFile[]> {
+/**
+ * Inventory a materialized runtime concurrently, without following links or including its descriptor.
+ * @param root - Self-contained runtime directory.
+ * @returns Sorted final-file inventory; executable permissions are false on Windows.
+ */
+export async function inventoryDesktopRuntimeAsync(root: string): Promise<DesktopRuntimeFile[]> {
   const entries = runtimeFiles(root)
   const files: DesktopRuntimeFile[] = []
   const remaining = entries.values()
@@ -125,6 +130,32 @@ export function writeDesktopRuntime(
   root: string, release: DesktopRelease, sharedNames: readonly string[],
   target: { platform: NodeJS.Platform; arch: string } = process,
 ): DesktopRuntimeDescriptor {
+  return sealDesktopRuntime(root, release, sharedNames, target, inventoryDesktopRuntime(root))
+}
+
+/**
+ * Seal the final runtime tree concurrently.
+ *
+ * Reading and hashing the tree is the whole cost of this stage, and a packaged runtime holds
+ * hundreds of megabytes of files, so the production path uses the concurrent inventory the
+ * verification path already relies on.
+ * @param root - Runtime output directory.
+ * @param release - Matching shell, dsh, Host, and executable versions.
+ * @param sharedNames - Release-owned packages supplied to plugins.
+ * @param target - Platform and architecture selected by runtime preparation.
+ * @returns Descriptor written beside the production packages.
+ */
+export async function writeDesktopRuntimeAsync(
+  root: string, release: DesktopRelease, sharedNames: readonly string[],
+  target: { platform: NodeJS.Platform; arch: string } = process,
+): Promise<DesktopRuntimeDescriptor> {
+  return sealDesktopRuntime(root, release, sharedNames, target, await inventoryDesktopRuntimeAsync(root))
+}
+
+function sealDesktopRuntime(
+  root: string, release: DesktopRelease, sharedNames: readonly string[],
+  target: { platform: NodeJS.Platform; arch: string }, files: readonly DesktopRuntimeFile[],
+): DesktopRuntimeDescriptor {
   const sharedPackages = [...new Set(sharedNames)].sort().map((name) => {
     if (!PACKAGE_NAME.test(name)) throw new Error(`desktop runtime: invalid shared package ${name}`)
     const path = `node_modules/${name}`
@@ -136,7 +167,7 @@ export function writeDesktopRuntime(
   })
   const descriptor: DesktopRuntimeDescriptor = {
     schemaVersion: 1, release, platform: target.platform, arch: target.arch,
-    sharedPackages, files: inventoryDesktopRuntime(root),
+    sharedPackages, files: [...files],
   }
   writeFileSync(join(root, DESKTOP_RUNTIME_FILE), `${JSON.stringify(descriptor, undefined, 2)}\n`)
   return descriptor
@@ -203,7 +234,7 @@ export async function verifyDesktopRuntime(
       throw new Error(`desktop runtime: shared package metadata mismatch for ${entry.name}`)
     }
   }
-  const actual = await inventoryRuntimeForVerification(root)
+  const actual = await inventoryDesktopRuntimeAsync(root)
   // Windows has no portable Unix executable permission bits.
   const comparable = (items: readonly DesktopRuntimeFile[]): unknown => process.platform === 'win32'
     ? items.map(({ executable: _executable, ...item }) => item) : items

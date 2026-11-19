@@ -132,6 +132,17 @@ describe('locale apply', () => {
     // service opens on FALLBACK_LOCALE (en); read the zh side explicitly.
     locale.setLocale('zh')
     expect(locale.bind(SETTINGS_NS)('language.title')).toBe('语言')
+    // The shipped Russian pack occupies its seats and serves translated copy.
+    expect(() => locale.register(SETTINGS_NS, 'ru', {})).toThrow('already has locale')
+    locale.setLocale('ru')
+    expect(locale.bind(SETTINGS_NS)('language.title')).toBe('Язык')
+    expect(locale.bind('common')('cancel')).toBe('Отмена')
+    // Keys the pack predates come from this fork's supplement; they are not part of the
+    // namespace's declared key union, which is why the bindings widen to plain keys here.
+    const schedule = locale.bind('schedule.catalog') as unknown as (key: string) => string
+    expect(schedule('delivery.retry')).toBe('Повторить')
+    const mods = locale.bind('claude-code-mods') as unknown as (key: string) => string
+    expect(mods('press.stale')).toContain('предыдущей отрисовке')
     const entry = before.slots.entries(SLOT).find(e => e.component === LanguageRow)!
     expect(entry.options).toMatchObject({ id: 'language', order: 0 })
 
@@ -155,7 +166,7 @@ describe('locale apply', () => {
     const { entry, instance, face } = faceOf(b.slots)
     // The inject-time re-sync sealed the init window: the mirror is current.
     expect(instance.getSnapshot().active).toBe('en')
-    expect(instance.getSnapshot().options.map(o => o.id)).toEqual(['zh', 'en'])
+    expect(instance.getSnapshot().options.map(o => o.id)).toEqual(['zh', 'en', 'ru'])
     // Copy rides the standard locale seat: the entry declares the namespace.
     expect(entry.locale).toBe(SETTINGS_NS)
     expect(locale.bind(SETTINGS_NS)('language.title')).toBe('Language')
@@ -184,11 +195,12 @@ describe('locale apply', () => {
     expect(instance.getSnapshot().options).toEqual([
       { id: 'zh', label: '中文' },
       { id: 'en', label: 'English' },
+      { id: 'ru', label: 'Русский' },
       { id: 'ja', label: '日本語' },
     ])
 
     await languagePack.dispose()
-    expect(instance.getSnapshot().options.map(option => option.id)).toEqual(['zh', 'en'])
+    expect(instance.getSnapshot().options.map(option => option.id)).toEqual(['zh', 'en', 'ru'])
   })
 
   it('loads and refreshes the explicit Host preference after nonblocking activation', async () => {

@@ -20,6 +20,8 @@
     { "path": "../ui-plugin-manager/tsconfig.client.json" },
     { "path": "../ui-primitives" },
     { "path": "../ui-renderer" },
+    { "path": "../ui-sidebar" },
+    { "path": "../ui-workspace" },
     { "path": "../ui-slots" }
   ]
 }

@@ -263,6 +263,132 @@ export interface SkillListValue {
   readonly skills: readonly SkillEntry[]
 }
 
+/** One catalog skill as the management surface sees it. */
+export interface SkillAdminEntry {
+  /** Absolute instruction-file path when a filesystem provider supplied one. */
+  readonly path?: string
+  /** Kebab-case identifier. */
+  readonly name: string
+  /** Short routing description. */
+  readonly description: string
+  /** Whether the skill is currently withheld from the catalog. */
+  readonly enabled: boolean
+}
+
+/** Catalog plus withheld names for one Session composition. */
+export interface SkillAdminValue {
+  readonly skills: readonly SkillAdminEntry[]
+  readonly disabled: readonly string[]
+  /** Whether enabled skills are attached to every Session automatically. */
+  readonly autoAttach: boolean
+}
+
+/** Stored automatic-attachment state plus the withheld names. */
+export interface SkillAutoAttachValue {
+  readonly autoAttach: boolean
+  readonly disabled: readonly string[]
+}
+
+/** Turn the automatic attachment of enabled skills on or off. */
+export interface SkillAutoAttachRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly enabled: boolean
+}
+
+/** Read the management catalog; the Session is optional for a global settings surface. */
+export interface SkillAdminListRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+}
+
+/** Withhold or restore one skill without touching its file. */
+export interface SkillToggleRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly name: string
+  readonly enabled: boolean
+}
+
+/** Create a user skill file from Markdown. */
+export interface SkillCreateRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly name: string
+  readonly content: string
+}
+
+/** Remove one user skill file. */
+export interface SkillRemoveRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly name: string
+}
+
+/** One skill published in the remote catalog. */
+export interface SkillCatalogEntry {
+  /** Kebab-case identifier used as the installed file name. */
+  readonly name: string
+  /** Catalog version of the skill. */
+  readonly version: string
+  /** Absolute download URL of the skill file. */
+  readonly url: string
+  /** SHA-256 of the skill file, lowercase hex. */
+  readonly sha256: string
+  /** Size of the published file in bytes, when the index reports it. */
+  readonly bytes?: number
+  /** Summaries by language; a missing language falls back to English. */
+  readonly description: { readonly en: string, readonly ru?: string, readonly zh?: string }
+}
+
+/** Remote catalog plus the locally installed hashes. */
+export interface SkillCatalogValue {
+  /** Where the catalog was read from. */
+  readonly source: string
+  /** Published skills, in catalog order. */
+  readonly skills: readonly SkillCatalogEntry[]
+  /** Installed skills with the hash of the file currently on disk. */
+  readonly installed: readonly { readonly name: string, readonly sha256: string }[]
+}
+
+/** Install or refresh one catalog skill. */
+export interface SkillInstallRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  readonly name: string
+}
+
+/** Result of installing one catalog skill. */
+export interface SkillInstallValue {
+  readonly name: string
+  readonly path: string
+  readonly sha256: string
+}
+
+/** Import one local skill file, or every `.md` file in a directory. */
+export interface SkillImportRequest {
+  /** Session whose composition selects the registry; omitted reads the host layer. */
+  readonly sessionId?: SessionId
+  /** Absolute or home-relative path of a skill file or a directory of files. */
+  readonly path: string
+}
+
+/** Result of importing local skill files. */
+export interface SkillImportValue {
+  /** Files written into `~/.dsh/skills`, with the path each one landed at. */
+  readonly imported: readonly { readonly name: string, readonly path: string }[]
+  /** Files left alone, with the reason. */
+  readonly skipped: readonly { readonly file: string, readonly reason: string }[]
+}
+
+/** Result of a management mutation. */
+export interface SkillMutationValue {
+  /** Absolute path of the file that was written or deleted. */
+  readonly path?: string
+  /** Withheld names after the mutation. */
+  readonly disabled: readonly string[]
+}
+
 /** Session list request. */
 export interface SessionListRequest {
   readonly cursor?: string
