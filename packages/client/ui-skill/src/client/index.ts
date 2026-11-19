@@ -98,10 +98,10 @@ export function apply(ctx: ClientContext): void {
   // The dock reports what the Session actually applied, not what is merely
   // installed: a skill appears here after a `/name` gesture or automatic
   // attachment wrote its instructions into the log.
-  const activeLoad = (sessionId: SessionId) => async (): Promise<{ names: readonly string[] }> => {
+  const activeLoad = (sessionId: SessionId) => async (): Promise<{ entries: readonly { name: string, seq: number }[] }> => {
     const result = await skills.activeSkills({ sessionId })
     if (!result.ok) throw new Error(`skills/activeSkills failed: ${result.error.code}: ${result.error.message}`)
-    return { names: result.value.names }
+    return { entries: result.value.entries }
   }
   ctx.slots.inject('conversation.composer.dock', () => ctx.slots.register({
     name: 'conversation.composer.dock',

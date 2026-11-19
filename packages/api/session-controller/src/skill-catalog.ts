@@ -218,21 +218,24 @@ export class SessionSkillCatalog extends TypertRemoteService {
    * @returns applied skill names in first-use order.
    */
   @Remote
-  async activeSkills(request: SkillListRequest, signal: AbortSignal): Promise<{ names: readonly string[] }> {
+  async activeSkills(request: SkillListRequest, signal: AbortSignal): Promise<{ entries: readonly { name: string, seq: number }[] }> {
     const live = this.ctx.agents.get(request.sessionId)
-    if (live === undefined) return { names: [] }
-    const names: string[] = []
-    const seen = new Set<string>()
+    if (live === undefined) return { entries: [] }
+    // Keep the latest invocation per skill: the composer shows a chip again when
+    // a skill is re-applied, not only the first time it appears in the Session.
+    const latest = new Map<string, number>()
     for (let index = 0; index < live.session.seq; index += 1) {
       if (signal.aborted) break
       const event = live.session.eventAt(SessionSeq(index))
       if (event?.type !== 'user/message') continue
       const source = event.data.source
-      if (source.kind !== 'skill-invocation' || seen.has(source.name)) continue
-      seen.add(source.name)
-      names.push(source.name)
+      if (source.kind !== 'skill-invocation') continue
+      latest.set(source.name, index)
     }
-    return { names }
+    const entries = [...latest.entries()]
+      .map(([name, seq]) => ({ name, seq }))
+      .sort((left, right) => left.seq - right.seq)
+    return { entries }
   }
 
   /**

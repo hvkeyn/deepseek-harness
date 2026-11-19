@@ -15,6 +15,8 @@ export const zh = {
   'menu.userOnly': '仅用户',
   'active.title': '已应用',
   'active.more': '+{count}',
+  'active.show': '\u5df2\u5e94\u7528 {count}',
+  'active.collapse': '\u6536\u8d77',
 } satisfies Record<string, string>
 
 /** The skill namespace key union. */
@@ -32,4 +34,6 @@ export const en = {
   'menu.userOnly': 'user-only',
   'active.title': 'Applied',
   'active.more': '+{count}',
+  'active.show': 'Applied {count}',
+  'active.collapse': 'Collapse',
 } satisfies Record<SkillKey, string>

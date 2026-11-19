@@ -10,13 +10,13 @@ const t = ((key: string): string => (en as Record<string, string>)[key] ?? key) 
 afterEach(cleanup)
 
 function renderDock(overrides: Partial<AttachedSkillsInjected> = {}) {
-  const load = vi.fn(async () => ({ names: ['review', 'research'] }))
+  const load = vi.fn(async () => ({ entries: [{ name: 'review', seq: 3 }, { name: 'research', seq: 5 }] }))
   render(<AttachedSkills t={t} load={load} {...overrides} />)
   return { load }
 }
 
 describe('AttachedSkills', () => {
-  it('shows the applied skills as chips', async () => {
+  it('shows freshly applied skills as chips', async () => {
     renderDock()
     await waitFor(() => { expect(screen.getByText('review')).toBeDefined() })
     expect(screen.getByText('research')).toBeDefined()
@@ -24,15 +24,28 @@ describe('AttachedSkills', () => {
   })
 
   it('collapses a long list into a counter chip', async () => {
-    const load = vi.fn(async () => ({ names: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }))
+    const load = vi.fn(async () => ({
+      entries: ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((name, index) => ({ name, seq: index + 1 })),
+    }))
     render(<AttachedSkills t={t} load={load} />)
     await waitFor(() => { expect(screen.getByText('+2')).toBeDefined() })
   })
 
   it('stays hidden when nothing was applied', async () => {
-    const load = vi.fn(async () => ({ names: [] }))
+    const load = vi.fn(async () => ({ entries: [] }))
     render(<AttachedSkills t={t} load={load} />)
     await waitFor(() => { expect(load).toHaveBeenCalled() })
     expect(screen.queryByText(en['active.title'])).toBeNull()
+  })
+
+  it('shows a skill only once it is applied', async () => {
+    let entries: { name: string, seq: number }[] = []
+    const load = vi.fn(async () => ({ entries }))
+    render(<AttachedSkills t={t} load={load} />)
+    await waitFor(() => { expect(load).toHaveBeenCalled() })
+    expect(screen.queryByText('review')).toBeNull()
+
+    entries = [{ name: 'review', seq: 7 }]
+    await waitFor(() => { expect(screen.getByText('review')).toBeDefined() }, { timeout: 4_000 })
   })
 })
